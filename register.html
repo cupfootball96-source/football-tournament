@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NEC 2026 | Player Registration</title>
+ <link rel="icon" type="jpg/png" href="assets/logo.png">
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header id="header">
+
+    <div class="container">
+
+        <a href="index.html" class="logo">
+
+            <img src="assets/logo.png" alt="Logo">
+
+            <span>NEW ERA CUP</span>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+
+<section class="registration">
+
+
+<!-- RULE AGREEMENT POPUP -->
+
+<div id="rulesPopup">
+
+<div class="rules-box">
+
+<h2>
+⚽ NEW ERA CUP 2026
+</h2>
+<p style="color:#ff4444;font-weight:bold;text-align:center;">
+⚠️ Registration Last Date: 5 August 2026
+</p>
+
+<h3>
+Tournament Rules Agreement
+</h3>
+
+
+<div class="rules-scroll">
+
+
+<p>
+1. Registration fee ₹500/- per player hai.
+</p>
+
+<p>
+2. Minimum age 16 years ya usse zyada honi chahiye.
+</p>
+
+<p>
+3. Registration sirf organizer verification ke baad confirm hoga.
+</p>
+
+<p>
+4. Maximum 64 players ko entry milegi.
+</p>
+
+<p>
+5. Organizer ko player select ya reject karne ka full right hoga.
+</p>
+
+<p>
+6. Fake information dene par registration cancel ho sakta hai.
+</p>
+
+<p>
+7. Verified players ka auction conduct kiya jayega.
+</p>
+
+<p>
+8. Auction ke baad team change allowed nahi hoga.
+</p>
+
+<p>
+9. Match me discipline maintain karna compulsory hai.
+</p>
+
+<p>
+10. Smoking, alcohol aur abusive behaviour strictly prohibited hai.
+</p>
+
+<p>
+11. Players ko official jersey me hi match khelna hoga.
+</p>
+
+<p>
+12. Referee aur organizer ka decision final hoga.
+</p>
+
+<p>
+13. Player apni fitness aur injury ke liye responsible hoga.
+</p>
+
+<p>
+14. Player data sirf tournament management ke liye use hoga.
+</p>
+
+<p>
+15. NEW ERA CUP 2026 ek special tournament hai jo har 5 saal me organize kiya jayega.
+</p>
+
+
+</div>
+
+
+<label class="agree-check">
+
+<input type="checkbox" id="agreeCheck">
+
+I have read and agree to all rules & regulations.
+
+</label>
+
+
+<button type="button" id="continueBtn">
+CONTINUE TO REGISTRATION
+</button>
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+<form id="registrationForm">
+
+
+
+
+
+<h2>Personal Information</h2>
+
+
+
+<label>
+Full Name *
+</label>
+
+
+<input 
+type="text"
+id="playerName"
+placeholder="Enter Full Name"
+required>
+
+
+
+
+
+<label>
+Date of Birth *
+</label>
+
+
+<input 
+type="date"
+id="dob"
+required>
+
+
+<p id="ageResult"></p>
+
+
+
+
+
+
+<label>
+Mobile Number *
+</label>
+
+
+<input 
+type="tel"
+id="mobile"
+maxlength="10"
+placeholder="10 Digit Mobile Number"
+required>
+
+
+
+
+
+<label>
+WhatsApp Number
+</label>
+
+
+<input 
+type="tel"
+placeholder="WhatsApp Number">
+
+
+
+
+
+
+<label>
+Full Address *
+</label>
+
+
+<textarea 
+placeholder="Enter your address"
+required></textarea>
+
+
+
+
+
+
+
+<label>
+Emergency Contact *
+</label>
+
+
+<input 
+type="tel"
+placeholder="Emergency Contact Number"
+required>
+
+
+
+
+
+
+
+
+<h2>
+Football Profile
+</h2>
+
+
+
+
+
+
+<label>
+Playing Position *
+</label>
+
+
+<select 
+id="position"
+required>
+
+
+<option value="">
+Select Position
+</option>
+
+
+<option>
+Goalkeeper
+</option>
+
+
+<option>
+Defender
+</option>
+
+
+<option>
+Midfielder
+</option>
+
+
+<option>
+Forward
+</option>
+
+
+</select>
+
+
+
+
+
+
+<label>
+Preferred Foot
+</label>
+
+
+<select>
+
+
+<option>
+Right Foot
+</option>
+
+
+<option>
+Left Foot
+</option>
+
+
+<option>
+Both
+</option>
+
+
+</select>
+
+
+
+
+
+
+
+<label>
+Football Experience
+</label>
+
+
+<select>
+
+
+<option>
+Beginner
+</option>
+
+
+<option>
+Intermediate
+</option>
+
+
+<option>
+Advanced
+</option>
+
+
+</select>
+
+
+
+
+
+
+
+<label>
+Player Photo *
+</label>
+
+
+<input
+
+type="file"
+
+id="playerPhoto"
+
+accept="image/*"
+
+required>
+
+
+
+
+
+
+
+
+
+
+<h2>
+Payment Details
+</h2>
+
+
+
+
+
+<div class="payment-box">
+
+
+
+
+
+<h3>
+Registration Fee: ₹500
+</h3>
+
+
+
+
+<p>
+Scan QR Code and complete payment
+<br>
+Payee Name: Tousif Ali
+</p>
+
+
+
+
+
+<div class="qr-box">
+
+<img id="paymentQR" src="assets/qrr1.png" alt="Payment QR">
+
+<p>
+Scan QR Code and Pay ₹500 for Entry
+</p>
+
+</div>
+
+
+
+
+
+
+
+
+<label>
+UPI Transaction ID / UTR Number *
+</label>
+
+
+
+<input
+
+type="text"
+
+id="utr"
+
+placeholder="Enter UTR Number"
+
+required>
+
+
+
+
+
+
+
+
+<label>
+Payment Screenshot *
+</label>
+
+
+
+
+<input
+
+type="file"
+
+id="paymentScreenshot"
+
+accept="image/*"
+
+required>
+
+
+
+
+
+
+</div>
+
+
+
+<button type="submit">
+
+SUBMIT REGISTRATION
+
+</button>
+
+
+
+
+
+</form>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<footer>
+
+
+<h3>
+NEW ERA CUP 2026
+</h3>
+
+
+<p>
+Football • Unity • Respect • Memories
+</p>
+
+
+<p>
+© 2026 NEC Committee
+</p>
+
+
+
+</footer>
+
+
+
+
+
+
+<script src="script.js"></script>
+
+
+
+</body>
+
+</html>

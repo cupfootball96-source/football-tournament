@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>NEW ERA CUP Admin Dashboard</title>
+ <link rel="icon" type="jpg/png" href="assets/logo.png">
+
+<link rel="stylesheet" href="admin.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+
+<img src="assets/logo.png" alt="Logo">
+<h2> NEW ERA CUP</h2>
+
+<p>Admin Panel</p>
+
+</div>
+
+<ul>
+
+<li class="active" id="menuDashboard">
+
+<i class="fa-solid fa-house"></i>
+
+<span>Dashboard</span>
+
+</li>
+
+<li id="menuPending">
+
+<i class="fa-solid fa-user-clock"></i>
+
+<span>Pending Players</span>
+
+</li>
+
+<li id="menuApproved">
+
+<i class="fa-solid fa-circle-check"></i>
+
+<span>Approved Players</span>
+
+</li>
+
+<li id="menuRejected">
+
+<i class="fa-solid fa-circle-xmark"></i>
+
+<span>Rejected Players</span>
+
+</li>
+
+<li id="menuSettings">
+
+<i class="fa-solid fa-gear"></i>
+
+<span>Settings</span>
+
+</li>
+
+<li id="logoutBtn">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+
+<span>Logout</span>
+
+</li>
+
+</ul>
+
+</div>
+
+<div class="main">
+<div id="dashboardSection">
+
+<header>
+
+<div>
+
+<h1>Dashboard</h1>
+
+<p>Welcome Administrator</p>
+
+</div>
+
+<div class="admin-profile">
+
+<img src="assets/logo.png">
+
+<div>
+
+<h4>Administrator</h4>
+
+<p>Super Admin</p>
+
+</div>
+
+</div>
+
+</header>
+
+<div class="cards">
+
+<div class="card pending">
+
+<div>
+
+<h5>Pending</h5>
+
+<h2 id="pending">0</h2>
+
+</div>
+
+<i class="fa-solid fa-user-clock"></i>
+
+</div>
+
+<div class="card approved">
+
+<div>
+
+<h5>Approved</h5>
+
+<h2 id="approved">0</h2>
+
+</div>
+
+<i class="fa-solid fa-circle-check"></i>
+
+</div>
+
+<div class="card rejected">
+
+<div>
+
+<h5>Rejected</h5>
+
+<h2 id="rejected">0</h2>
+
+</div>
+
+<i class="fa-solid fa-circle-xmark"></i>
+
+</div>
+
+<div class="card remaining">
+
+<div>
+
+<h5>Remaining</h5>
+
+<h2 id="remaining">64</h2>
+
+</div>
+
+<i class="fa-solid fa-users"></i>
+
+</div>
+
+</div>
+
+<div class="toolbar">
+
+<div class="search">
+
+<input
+type="text"
+id="searchPlayer"
+placeholder="Search Player...">
+
+</div>
+
+<div class="filters">
+
+<select id="positionFilter">
+
+<option value="">All Position</option>
+
+<option>Goalkeeper</option>
+
+<option>Defender</option>
+
+<option>Midfielder</option>
+
+<option>Forward</option>
+
+</select>
+
+<select id="statusFilter">
+
+<option value="">All Status</option>
+
+<option>Pending</option>
+
+<option>Approved</option>
+
+<option>Rejected</option>
+
+</select>
+
+<button
+onclick="loadDashboard()">
+
+<i class="fa-solid fa-rotate-right"></i>
+
+Refresh
+
+</button>
+
+</div>
+
+</div>
+
+<div class="table-card" id="pendingSection">
+
+<h3>
+
+Pending Verification Players
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+
+<th>Photo</th>
+
+<th>Name</th>
+
+<th>Age</th>
+
+<th>Position</th>
+
+<th>UTR</th>
+
+<th>Mobile</th>
+
+<th>Payment</th>
+
+<th>Status</th>
+
+<th>Date</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="playerTable">
+
+</tbody>
+
+</table>
+
+</div>
+<!-- ========================= -->
+<!-- APPROVED PLAYERS -->
+<!-- ========================= -->
+
+<div class="table-card" id="approvedSection">
+
+<h3>
+
+Approved Players
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Name</th>
+<th>Position</th>
+<th>Mobile</th>
+<th>Status</th>
+<th>Approved Date</th>
+
+</tr>
+
+</thead>
+
+<tbody id="approvedTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- REJECTED PLAYERS -->
+<!-- ========================= -->
+
+<div class="table-card" id="rejectedSection">
+
+<h3>
+
+Rejected Players
+
+</h3>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Name</th>
+<th>Position</th>
+<th>Reject Reason</th>
+<th>Rejected Date</th>
+
+</tr>
+
+</thead>
+
+<tbody id="rejectedTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- PLAYER DETAILS MODAL -->
+<!-- ========================= -->
+
+<div class="modal"
+id="playerModal">
+
+<div class="modal-content">
+
+<span
+class="close"
+onclick="closeModal()">
+
+&times;
+
+</span>
+
+<h2>
+
+Player Details
+
+</h2>
+
+<div id="playerDetails">
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- IMAGE PREVIEW -->
+<!-- ========================= -->
+
+<div
+class="modal"
+id="imageModal">
+
+<div class="image-box">
+
+<span
+class="close"
+onclick="closeImage()">
+
+&times;
+
+</span>
+
+<img
+id="previewImage">
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- LOADER -->
+<!-- ========================= -->
+
+<div id="loader">
+
+<div class="spinner">
+
+</div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- TOAST -->
+<!-- ========================= -->
+
+<div
+id="toast">
+
+Action Completed
+
+</div>
+
+
+</div>
+</div>
+
+<script src="dashboard.js"></script>
+<script src="menu.js"></script>
+
+</body>
+
+</html>

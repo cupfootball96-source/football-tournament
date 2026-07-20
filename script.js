@@ -417,7 +417,9 @@ document.addEventListener("click", async function(e) {
                 let selectedDivs = document.getElementsByClassName("select-selected");
                 let selects = document.getElementsByTagName("select");
                 for(let i=0; i<selects.length; i++) {
-                     selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
+                     if (selectedDivs[i] && selects[i].options.length > 0) {
+                         selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
+                     }
                 }
                 
                 document.getElementById("summaryModal").style.display = "none";

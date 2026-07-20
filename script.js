@@ -379,11 +379,13 @@ document.addEventListener("click", function(e) {
 // Final Submit Logic
 document.addEventListener("click", async function(e) {
     if (e.target.id === "finalSubmitBtn") {
+        let btn = e.target;
+        if(btn.disabled) return;
+        btn.disabled = true;
+        
         alert("I confirm that all provided information is accurate to the best of my knowledge and no data tempering has been done.");
         
-        let btn = e.target;
         btn.innerHTML = "SUBMITTING...";
-        btn.disabled = true;
         
         try {
             let response = await fetch(scriptURL, {

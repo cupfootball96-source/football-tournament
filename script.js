@@ -233,41 +233,56 @@ document.getElementById("dob")?.addEventListener("change",function(){
 
 
 
-// FILE TO BASE64
-
+// FILE TO BASE64 WITH COMPRESSION
 
 function fileToBase64(file){
-
-
     return new Promise((resolve,reject)=>{
-
+        if (!file.type.match(/image.*/)) {
+            let reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject();
+            reader.readAsDataURL(file);
+            return;
+        }
 
         let reader = new FileReader();
-
-
-        reader.onload=function(){
-
-            resolve(reader.result);
-
+        reader.onload = function(event) {
+            let img = new Image();
+            img.onload = function() {
+                let canvas = document.createElement("canvas");
+                let ctx = canvas.getContext("2d");
+                
+                let MAX_WIDTH = 800;
+                let MAX_HEIGHT = 800;
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = Math.round(height * MAX_WIDTH / width);
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = Math.round(width * MAX_HEIGHT / height);
+                        height = MAX_HEIGHT;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                let dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+                resolve(dataUrl);
+            };
+            img.onerror = reject;
+            img.src = event.target.result;
         };
-
-
-        reader.onerror=function(){
-
-            reject();
-
-        };
-
-
+        reader.onerror = reject;
         reader.readAsDataURL(file);
-
-
     });
-
-
 }
-
-
 
 
 
@@ -385,7 +400,24 @@ document.addEventListener("click", async function(e) {
         
         alert("I confirm that all provided information is accurate to the best of my knowledge and no data tempering has been done.");
         
-        btn.innerHTML = "SUBMITTING...";
+        const getSpinner = (msg) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg><style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>${msg}`;
+        
+        btn.innerHTML = getSpinner("Securing slot...");
+        
+        let loadingMessages = [
+            "Uploading player photo...",
+            "Verifying payment...",
+            "Finalizing details...",
+            "Almost done..."
+        ];
+        
+        let msgIndex = 0;
+        let loadingInterval = setInterval(() => {
+            if (msgIndex < loadingMessages.length) {
+                btn.innerHTML = getSpinner(loadingMessages[msgIndex]);
+                msgIndex++;
+            }
+        }, 2000);
         
         try {
             let response = await fetch(scriptURL, {
@@ -394,6 +426,7 @@ document.addEventListener("click", async function(e) {
             });
             
             let result = await response.json();
+            clearInterval(loadingInterval);
             
             if(result.status === "duplicate"){
                 alert("❌ This mobile number is already registered.");
@@ -434,6 +467,7 @@ document.addEventListener("click", async function(e) {
         }
         catch (error) {
             console.log(error);
+            clearInterval(loadingInterval);
             alert("❌ Registration failed. Please try again.");
             btn.disabled = false;
             btn.innerHTML = "CONFIRM & REGISTER";

@@ -416,32 +416,6 @@ img.loading="lazy";
 
 
 
-// =========================================
-// DISABLE RIGHT CLICK (OPTIONAL)
-// =========================================
-
-// document.addEventListener("contextmenu",e=>{
-
-//     e.preventDefault();
-
-// });
-
-
-
-// =========================================
-// DISABLE F12 (OPTIONAL)
-// =========================================
-
-// document.addEventListener("keydown",function(e){
-
-// if(e.key==="F12"){
-
-// e.preventDefault();
-
-// }
-
-// });
-
 
 
 // =========================================
@@ -464,6 +438,74 @@ window.addEventListener("load", () => {
 });
 
 
+
+// =========================================
+// FETCH VERIFIED PLAYERS (HOMEPAGE)
+// =========================================
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
+
+async function loadVerifiedPlayers() {
+    const grid = document.getElementById("playerGrid");
+    if (!grid) return;
+
+    grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;padding:20px;">Loading Verified Players...</div>';
+
+    try {
+        const response = await fetch(WEB_APP_URL + "?action=getApprovedPlayers");
+        const players = await response.json();
+
+        grid.innerHTML = "";
+
+        if (players.length === 0) {
+            grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;padding:20px;">No Verified Players Yet.</div>';
+            return;
+        }
+
+        // Limit to 4 players for the homepage
+        const latestPlayers = players.slice(0, 4);
+
+        latestPlayers.forEach((player, index) => {
+            // Add staggered delay for animation
+            const delay = index * 0.1;
+            
+            grid.innerHTML += `
+                <div class="player-card fade-up" style="animation-delay: ${delay}s">
+                    <div class="player-photo">
+                        <img src="${player.photo || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop'}" alt="Player">
+                    </div>
+                    <div class="player-info">
+                        <h3>${player.name}</h3>
+                        <div class="player-id">${player.id}</div>
+                        <div class="player-position">${player.position}</div>
+                        <div class="player-stats">
+                            <div class="stat">
+                                <span class="label">Age</span>
+                                <span class="value">${player.age || 'N/A'}</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Foot</span>
+                                <span class="value">N/A</span>
+                            </div>
+                            <div class="stat">
+                                <span class="label">Exp</span>
+                                <span class="value">N/A</span>
+                            </div>
+                        </div>
+                        <div class="player-status"><i class="fa-solid fa-check-circle"></i> Verified</div>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (error) {
+        console.error(error);
+        grid.innerHTML = '<div style="color:red;text-align:center;grid-column:1/-1;padding:20px;">Failed to load players. Please try again later.</div>';
+    }
+}
+
+window.addEventListener("load", () => {
+    loadVerifiedPlayers();
+});
 
 // =========================================
 // END OF FILE

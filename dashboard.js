@@ -98,7 +98,7 @@ async function loadStats(){
     data.rejected;
 
     document.getElementById("remaining").textContent =
-    data.remaining;
+    64 - data.approved;
 
 }
 
@@ -649,7 +649,7 @@ function initSearch(){
 
         const keyword = this.value.toLowerCase();
 
-        const rows = document.querySelectorAll("#playerTable tr");
+        const rows = document.querySelectorAll("tbody tr");
 
         rows.forEach(row => {
 
@@ -664,35 +664,37 @@ function initSearch(){
 }
 
 // ======================================
-// FILTER PLACEHOLDER
+// FILTERS
 // ======================================
 
 function initFilters(){
 
-    const positionFilter =
-    document.getElementById("positionFilter");
-
-    const statusFilter =
-    document.getElementById("statusFilter");
+    const positionFilter = document.getElementById("positionFilter");
+    const statusFilter = document.getElementById("statusFilter");
 
     if(positionFilter){
-
-        positionFilter.addEventListener("change",()=>{
-
-            // Future Feature
-
+        positionFilter.addEventListener("change",(e)=>{
+            const val = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                const txt = row.innerText.toLowerCase();
+                if(val === "") {
+                    row.style.display = "";
+                } else {
+                    row.style.display = txt.includes(val) ? "" : "none";
+                }
+            });
         });
-
     }
 
     if(statusFilter){
-
-        statusFilter.addEventListener("change",()=>{
-
-            // Future Feature
-
+        statusFilter.addEventListener("change",(e)=>{
+            const val = e.target.value;
+            if (val === "Pending") document.getElementById("menuPending").click();
+            else if (val === "Approved") document.getElementById("menuApproved").click();
+            else if (val === "Rejected") document.getElementById("menuRejected").click();
+            else document.getElementById("menuDashboard").click();
         });
-
     }
 
 }

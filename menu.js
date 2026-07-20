@@ -22,14 +22,16 @@ const rejectedSection = document.getElementById("rejectedSection");
 
 
 
+const summarySection = document.getElementById("summarySection");
+
 // SHOW ONLY SELECTED SECTION
 
 function hideAll(){
 
-    dashboardSection.style.display="none";
     pendingSection.style.display="none";
     approvedSection.style.display="none";
     rejectedSection.style.display="none";
+    if (summarySection) summarySection.style.display="none";
 
 }
 
@@ -57,11 +59,16 @@ dashboardBtn.onclick=function(){
 
     hideAll();
 
-    dashboardSection.style.display="block";
-
     pendingSection.style.display="block";
+    approvedSection.style.display="block";
+    rejectedSection.style.display="block";
+    if (summarySection) summarySection.style.display="block";
 
     activeMenu(dashboardBtn);
+
+    // Reset status filter to All Status when clicking dashboard
+    const statusFilter = document.getElementById("statusFilter");
+    if(statusFilter) statusFilter.value = "";
 
 };
 
@@ -142,6 +149,8 @@ logoutBtn.onclick=function(){
 
 };
 
+    // INITIALIZE DEFAULT VIEW
+    dashboardBtn.onclick();
 
 
 });

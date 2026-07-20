@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Verified Players | NEW ERA CUP 2026</title>
+    <link rel="icon" type="jpg/png" href="assets/logo.png">
+
+    <meta name="description"
+        content="All Verified Players - NEW ERA CUP 2026">
+
+    <link rel="stylesheet" href="index.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        .page-header {
+            padding: 150px 0 50px;
+            text-align: center;
+            background: linear-gradient(rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.9)), url("assets/stadium.png");
+            background-size: cover;
+            background-position: center;
+        }
+        .page-header h1 {
+            color: #fff;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        .page-header p {
+            color: var(--gold);
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ========================= -->
+<!-- HEADER -->
+<!-- ========================= -->
+
+<header id="header" style="background: rgba(10,10,10,0.95); border-bottom: 1px solid rgba(255,255,255,0.1);">
+
+    <div class="container">
+
+        <a href="index.html" class="logo">
+
+            <img src="assets/logo.png" alt="Logo">
+
+            <span>NEW ERA CUP</span>
+
+        </a>
+
+        <nav id="navMenu">
+
+            <a href="index.html#home">Home</a>
+
+            <a href="index.html#about">About</a>
+
+            <a href="index.html#journey">Journey</a>
+
+            <a href="index.html#players" class="active">Players</a>
+
+            <a href="index.html#rules">Rules</a>
+
+            <a href="index.html#contact">Contact</a>
+
+        </nav>
+
+        <div class="menu-btn" id="menuBtn">
+
+            <i class="fa-solid fa-bars"></i>
+
+        </div>
+
+    </div>
+
+</header>
+
+<!-- ========================= -->
+<!-- PAGE HEADER -->
+<!-- ========================= -->
+<section class="page-header">
+    <div class="container">
+        <h1>All Verified Players</h1>
+        <p>Officially Approved Participants For 2026</p>
+    </div>
+</section>
+
+<!-- ========================= -->
+<!-- VERIFIED PLAYERS -->
+<!-- ========================= -->
+
+<section class="players" id="players" style="padding: 80px 0;">
+
+    <div class="container">
+
+        <div class="player-grid" id="allPlayerGrid">
+
+            <!-- Dynamic Players From Apps Script will be loaded here -->
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- FOOTER -->
+<!-- ========================= -->
+
+<footer>
+
+    <div class="container footer-container">
+
+        <div class="footer-logo">
+
+            <img src="assets/logo.png" alt="Logo">
+
+            <h2>NEW ERA CUP 2026</h2>
+
+        </div>
+
+
+        <div class="footer-links">
+
+            <h3>Quick Links</h3>
+
+            <a href="index.html#home">Home</a>
+            <a href="index.html#about">About</a>
+            <a href="index.html#rules">Rules</a>
+            <a href="index.html#contact">Contact</a>
+
+        </div>
+
+
+        <div class="footer-social">
+
+            <h3>Follow Us</h3>
+
+            <div class="social-icons">
+
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-facebook-f"></i></a>
+
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-instagram"></i></a>
+
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-youtube"></i></a>
+
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-whatsapp"></i></a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 NEW ERA CUP. All Rights Reserved.
+        </p>
+
+    </div>
+
+</footer>
+
+<script>
+    // Basic menu toggle script for the new page
+    const menuBtn = document.getElementById('menuBtn');
+    const navMenu = document.getElementById('navMenu');
+
+    if (menuBtn && navMenu) {
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
+
+    async function loadAllVerifiedPlayers() {
+        const grid = document.getElementById("allPlayerGrid");
+        if (!grid) return;
+
+        grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;padding:20px;">Loading Verified Players...</div>';
+
+        try {
+            const response = await fetch(WEB_APP_URL + "?action=getApprovedPlayers");
+            const players = await response.json();
+
+            grid.innerHTML = "";
+
+            if (players.length === 0) {
+                grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;padding:20px;">No Verified Players Yet.</div>';
+                return;
+            }
+
+            players.forEach(player => {
+                grid.innerHTML += `
+                    <div class="player-card fade-up">
+                        <div class="player-photo">
+                            <img src="${player.photo || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop'}" alt="Player">
+                        </div>
+                        <div class="player-info">
+                            <h3>${player.name}</h3>
+                            <div class="player-id">${player.id}</div>
+                            <div class="player-position">${player.position}</div>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <span class="label">Age</span>
+                                    <span class="value">${player.age || 'N/A'}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Foot</span>
+                                    <span class="value">N/A</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Exp</span>
+                                    <span class="value">N/A</span>
+                                </div>
+                            </div>
+                            <div class="player-status"><i class="fa-solid fa-check-circle"></i> Verified</div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error(error);
+            grid.innerHTML = '<div style="color:red;text-align:center;grid-column:1/-1;padding:20px;">Failed to load players. Please try again later.</div>';
+        }
+    }
+
+    // Load players when page loads
+    window.addEventListener("load", loadAllVerifiedPlayers);
+</script>
+
+</body>
+</html>

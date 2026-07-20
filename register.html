@@ -10,7 +10,9 @@
  <link rel="icon" type="jpg/png" href="assets/logo.png">
 
 <link rel="stylesheet" href="style.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
 </head>
 
 
@@ -36,17 +38,15 @@
 
 
 
-<section class="registration">
-
-
 <!-- RULE AGREEMENT POPUP -->
 
 <div id="rulesPopup">
 
 <div class="rules-box">
 
-<h2>
-⚽ NEW ERA CUP 2026
+<h2 class="popup-title">
+<img src="assets/logo.png" alt="Logo" class="popup-logo">
+NEW ERA CUP 2026
 </h2>
 <p style="color:#ff4444;font-weight:bold;text-align:center;">
 ⚠️ Registration Last Date: 5 August 2026
@@ -56,8 +56,13 @@
 Tournament Rules Agreement
 </h3>
 
+<div class="lang-toggle">
+    <button type="button" id="btnHinglish" class="lang-btn active">Hinglish</button>
+    <button type="button" id="btnEnglish" class="lang-btn">English</button>
+</div>
 
-<div class="rules-scroll">
+
+<div class="rules-scroll" id="rulesHinglish">
 
 
 <p>
@@ -124,6 +129,73 @@ Tournament Rules Agreement
 </div>
 
 
+<div class="rules-scroll" id="rulesEnglish" style="display: none;">
+
+
+<p>
+1. The registration fee is ₹500/- per player.
+</p>
+
+<p>
+2. The minimum age requirement is 16 years or above.
+</p>
+
+<p>
+3. Registration will be confirmed only after organizer verification.
+</p>
+
+<p>
+4. A maximum of 64 players will be granted entry.
+</p>
+
+<p>
+5. The organizer reserves the full right to select or reject any player.
+</p>
+
+<p>
+6. Providing fake information may lead to the cancellation of registration.
+</p>
+
+<p>
+7. An auction will be conducted for the verified players.
+</p>
+
+<p>
+8. Team changes will not be allowed after the auction.
+</p>
+
+<p>
+9. Maintaining discipline during the match is compulsory.
+</p>
+
+<p>
+10. Smoking, alcohol, and abusive behavior are strictly prohibited.
+</p>
+
+<p>
+11. Players must play the match in their official jersey.
+</p>
+
+<p>
+12. The referee's and organizer's decisions will be final.
+</p>
+
+<p>
+13. Players are responsible for their own fitness and injuries.
+</p>
+
+<p>
+14. Player data will only be used for tournament management purposes.
+</p>
+
+<p>
+15. NEW ERA CUP 2026 is a special tournament organized once every 5 years.
+</p>
+
+
+</div>
+
+
 <label class="agree-check">
 
 <input type="checkbox" id="agreeCheck">
@@ -142,13 +214,18 @@ CONTINUE TO REGISTRATION
 
 </div>
 
+<section class="registration">
 
 
 
 
 
 
-<form id="registrationForm">
+
+
+
+
+<form id="registrationForm" style="display: none;">
 
 
 
@@ -181,6 +258,7 @@ Date of Birth *
 <input 
 type="date"
 id="dob"
+placeholder="Select Date of Birth"
 required>
 
 
@@ -200,6 +278,8 @@ Mobile Number *
 type="tel"
 id="mobile"
 maxlength="10"
+pattern="[0-9]{10}"
+oninput="this.value = this.value.replace(/[^0-9]/g, '')"
 placeholder="10 Digit Mobile Number"
 required>
 
@@ -214,6 +294,9 @@ WhatsApp Number
 
 <input 
 type="tel"
+maxlength="10"
+pattern="[0-9]{10}"
+oninput="this.value = this.value.replace(/[^0-9]/g, '')"
 placeholder="WhatsApp Number">
 
 
@@ -243,6 +326,9 @@ Emergency Contact *
 
 <input 
 type="tel"
+maxlength="10"
+pattern="[0-9]{10}"
+oninput="this.value = this.value.replace(/[^0-9]/g, '')"
 placeholder="Emergency Contact Number"
 required>
 
@@ -308,56 +394,20 @@ Forward
 Preferred Foot
 </label>
 
-
-<select>
-
-
-<option>
-Right Foot
-</option>
-
-
-<option>
-Left Foot
-</option>
-
-
-<option>
-Both
-</option>
-
-
+<select id="foot">
+<option>Right Foot</option>
+<option>Left Foot</option>
+<option>Both</option>
 </select>
-
-
-
-
-
-
 
 <label>
 Football Experience
 </label>
 
-
-<select>
-
-
-<option>
-Beginner
-</option>
-
-
-<option>
-Intermediate
-</option>
-
-
-<option>
-Advanced
-</option>
-
-
+<select id="experience">
+<option>Beginner</option>
+<option>Intermediate</option>
+<option>Advanced</option>
 </select>
 
 
@@ -487,17 +537,52 @@ required>
 
 
 
-<button type="submit">
-
-SUBMIT REGISTRATION
-
+<button type="submit" id="reviewBtn">
+REVIEW & SUBMIT
 </button>
 
-
-
-
-
 </form>
+
+<div id="summaryModal">
+    <div class="summary-modal-content">
+        <h2 style="text-align:center; color:#FFD700; font-size:28px; margin-bottom: 10px;">Player Summary</h2>
+        <p style="text-align:center; color:#d1d5db; margin-bottom:20px; font-size: 14px;">Please review your details carefully.</p>
+        
+        <div class="player-card" style="max-width: 350px; margin: 0 auto;">
+            <div class="player-photo">
+                <img src="" alt="Player Photo" id="summaryPhoto">
+            </div>
+            <div class="player-info" style="position:relative;">
+                <h3 style="display:flex; justify-content:center; align-items:center; gap:8px;"><span id="summaryName">Player Name</span></h3>
+                <div class="player-position" style="display:flex; justify-content:center; align-items:center; gap:8px;"><span id="summaryPosition">Position</span></div>
+                
+                <div class="player-stats">
+                    <div class="stat">
+                        <span class="label">Age</span>
+                        <span class="value" style="display:flex; justify-content:center; align-items:center; gap:5px;"><span id="summaryAge">0</span></span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Foot</span>
+                        <span class="value" style="display:flex; justify-content:center; align-items:center; gap:5px;"><span id="summaryFoot">-</span></span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Exp</span>
+                        <span class="value" style="display:flex; justify-content:center; align-items:center; gap:5px;"><span id="summaryExp">-</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="max-width: 350px; margin: 25px auto 0; display:flex; gap:12px;">
+            <button type="button" id="editDataBtn" style="flex:1; padding:15px; border:1px solid #FFD700; border-radius:50px; font-size:14px; font-weight:700; cursor:pointer; color:#FFD700; background:transparent; transition:.3s;">
+                EDIT DATA
+            </button>
+            <button type="button" id="finalSubmitBtn" style="flex:1; padding:15px; border:none; border-radius:50px; font-size:14px; font-weight:700; cursor:pointer; color:#111; background:linear-gradient(90deg, #FFD700, #F39C12); transition:.35s; box-shadow:0 10px 30px rgba(255,215,0,.35);">
+                CONFIRM
+            </button>
+        </div>
+    </div>
+</div>
 
 
 
@@ -538,9 +623,8 @@ Football • Unity • Respect • Memories
 
 
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="script.js"></script>
-
-
 
 </body>
 

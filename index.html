@@ -165,8 +165,8 @@
 
                 <h3>Tournament Date</h3>
 
-                <p>22 June 2026</p>
-                <p>23 June 2026</p>
+                <p>22 July 2026</p>
+                <p>23 July 2026</p>
 
             </div>
 
@@ -432,8 +432,14 @@
 
         <div class="player-grid" id="playerGrid">
 
-            <!-- Dynamic Players From Apps Script -->
+            <!-- Dynamic Players From Apps Script will be loaded here -->
 
+        </div>
+
+        <div class="view-all-container" style="text-align: center; margin-top: 50px;">
+            <a href="verified-players.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; font-size: 16px; padding: 15px 35px;">
+                Show All Players <i class="fa-solid fa-arrow-right"></i>
+            </a>
         </div>
 
     </div>
@@ -575,24 +581,20 @@
 
         </div>
 
-        <div class="sponsor-grid">
-
-            <div class="sponsor-box">
-                Sponsor 1
+        <div class="sponsor-coming-soon">
+            <div class="coming-soon-content">
+                <div class="icon-wrap">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+                <h3>Will Be Updated Shortly</h3>
+                <p>We are currently onboarding our amazing partners and sponsors.<br>Stay tuned for exciting announcements!</p>
+                
+                <div class="pulse-loader">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
-
-            <div class="sponsor-box">
-                Sponsor 2
-            </div>
-
-            <div class="sponsor-box">
-                Sponsor 3
-            </div>
-
-            <div class="sponsor-box">
-                Sponsor 4
-            </div>
-
         </div>
 
     </div>
@@ -797,39 +799,72 @@
 
         <div class="contact-grid">
 
-            <div class="contact-card">
+            <div class="contact-item">
 
                 <i class="fa-solid fa-phone"></i>
 
                 <h3>Phone</h3>
 
-                <p>Tousif: +91 6290742480</p>
-                <p>Sonu: +91 9433948702</p>
-                <p>Rahim: +91 8017795618</p>
-                <p>Sultan: +91 6291359853</p>
+                <div class="contact-list">
+                    <a href="tel:+916290742480" class="contact-btn">
+                        <span class="contact-name">Tousif</span>
+                        <span class="contact-number">+91 6290742480</span>
+                    </a>
+                    <a href="tel:+919433948702" class="contact-btn">
+                        <span class="contact-name">Sonu</span>
+                        <span class="contact-number">+91 9433948702</span>
+                    </a>
+                    <a href="tel:+918017795618" class="contact-btn">
+                        <span class="contact-name">Rahim</span>
+                        <span class="contact-number">+91 8017795618</span>
+                    </a>
+                    <a href="tel:+916291359853" class="contact-btn">
+                        <span class="contact-name">Sultan</span>
+                        <span class="contact-number">+91 6291359853</span>
+                    </a>
+                </div>
 
             </div>
 
-            <div class="contact-card">
+            <div class="contact-item">
 
                 <i class="fa-brands fa-whatsapp"></i>
 
                 <h3>WhatsApp</h3>
 
-                <p>Tousif: +91 6290742480</p>
-                <p>Sonu: +91 9433948702</p>
-                <p>Rahim: +91 8017795618</p>
-                <p>Sultan: +91 6291359853</p>
+                <div class="contact-list">
+                    <a href="https://wa.me/916290742480" target="_blank" class="contact-btn whatsapp-btn">
+                        <span class="contact-name">Tousif</span>
+                        <span class="contact-number">+91 6290742480</span>
+                    </a>
+                    <a href="https://wa.me/919433948702" target="_blank" class="contact-btn whatsapp-btn">
+                        <span class="contact-name">Sonu</span>
+                        <span class="contact-number">+91 9433948702</span>
+                    </a>
+                    <a href="https://wa.me/918017795618" target="_blank" class="contact-btn whatsapp-btn">
+                        <span class="contact-name">Rahim</span>
+                        <span class="contact-number">+91 8017795618</span>
+                    </a>
+                    <a href="https://wa.me/916291359853" target="_blank" class="contact-btn whatsapp-btn">
+                        <span class="contact-name">Sultan</span>
+                        <span class="contact-number">+91 6291359853</span>
+                    </a>
+                </div>
 
             </div>
 
-            <div class="contact-card">
+            <div class="contact-item">
 
                 <i class="fa-solid fa-envelope"></i>
 
                 <h3>Email</h3>
 
-                <p>cupfootball96@gmail.com</p>
+                <div class="contact-list">
+                    <a href="mailto:cupfootball96@gmail.com" class="contact-btn email-btn">
+                        <span class="contact-name">Mail Us</span>
+                        <span class="contact-number">cupfootball96@gmail.com</span>
+                    </a>
+                </div>
 
             </div>
 
@@ -876,13 +911,13 @@
 
             <div class="social-icons">
 
-                <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-facebook-f"></i></a>
 
-                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-instagram"></i></a>
 
-                <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-youtube"></i></a>
 
-                <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="javascript:void(0)" class="tooltip-wrap" data-tooltip="Coming Soon"><i class="fa-brands fa-whatsapp"></i></a>
 
             </div>
 

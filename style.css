@@ -839,11 +839,9 @@ footer p{
     }
 
     .agreement{
-
-        flex-direction:column;
-
-        gap:10px;
-
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
     }
 
     .agreement input{
@@ -1032,13 +1030,11 @@ footer p{
 
 
 .rules-scroll{
-
-    max-height:320px;
-
-    overflow-y:auto;
-
-    padding-right:10px;
-
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin-bottom: 20px;
 }
 
 

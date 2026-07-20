@@ -326,7 +326,7 @@ form.addEventListener("submit", async function(e){
             dob: document.getElementById("dob").value,
             age: age,
             mobile: document.getElementById("mobile").value,
-            position: document.getElementsByTagName("select")[0].value,
+            position: document.getElementById("position").value,
             foot: document.getElementById("foot").value,
             experience: document.getElementById("experience").value,
             utr: document.getElementById("utr").value,
@@ -355,7 +355,7 @@ form.addEventListener("submit", async function(e){
     }
     catch(error){
         console.log(error);
-        alert("❌ Error preparing summary.");
+        alert("❌ Error preparing summary: " + (error.message || "Unknown error"));
         let button = document.getElementById("reviewBtn");
         if (button) {
             button.disabled = false;

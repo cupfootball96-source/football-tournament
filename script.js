@@ -391,6 +391,43 @@ document.addEventListener("click", function(e) {
     }
 });
 
+// Loading Modal Logic
+function showLoadingModal(message) {
+    let modal = document.getElementById("loadingOverlayModal");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "loadingOverlayModal";
+        modal.style.position = "fixed";
+        modal.style.inset = "0";
+        modal.style.background = "rgba(0,0,0,0.85)";
+        modal.style.display = "none";
+        modal.style.justifyContent = "center";
+        modal.style.alignItems = "center";
+        modal.style.zIndex = "999999";
+        modal.style.backdropFilter = "blur(8px)";
+        modal.innerHTML = `
+            <div class="custom-alert-box" style="text-align:center; padding: 40px;">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite; margin-bottom: 20px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+                <h3 id="loadingOverlayMessage" style="color:var(--gold); font-size:18px; font-weight:600; margin:0;"></h3>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    document.getElementById("loadingOverlayMessage").innerHTML = message;
+    modal.style.display = "flex";
+}
+
+function updateLoadingModal(message) {
+    let msgEl = document.getElementById("loadingOverlayMessage");
+    if (msgEl) msgEl.innerHTML = message;
+}
+
+function hideLoadingModal() {
+    let modal = document.getElementById("loadingOverlayModal");
+    if (modal) modal.style.display = "none";
+}
+
 // Final Submit Logic
 document.addEventListener("click", async function(e) {
     if (e.target.id === "finalSubmitBtn") {
@@ -400,9 +437,7 @@ document.addEventListener("click", async function(e) {
         
         alert("I confirm that all provided information is accurate to the best of my knowledge and no data tempering has been done.");
         
-        const getSpinner = (msg) => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg><style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>${msg}`;
-        
-        btn.innerHTML = getSpinner("Securing slot...");
+        showLoadingModal("Securing slot...");
         
         let loadingMessages = [
             "Uploading player photo...",
@@ -414,7 +449,7 @@ document.addEventListener("click", async function(e) {
         let msgIndex = 0;
         let loadingInterval = setInterval(() => {
             if (msgIndex < loadingMessages.length) {
-                btn.innerHTML = getSpinner(loadingMessages[msgIndex]);
+                updateLoadingModal(loadingMessages[msgIndex]);
                 msgIndex++;
             }
         }, 2000);
@@ -427,23 +462,26 @@ document.addEventListener("click", async function(e) {
             
             let result = await response.json();
             clearInterval(loadingInterval);
+            hideLoadingModal();
             
             if(result.status === "duplicate"){
                 alert("❌ This mobile number is already registered.");
                 btn.disabled = false;
-                btn.innerHTML = "CONFIRM & REGISTER";
                 return;
             }
             
             if(result.status === "full"){
                 alert("❌ All 64 player slots are filled.");
                 btn.disabled = false;
-                btn.innerHTML = "CONFIRM & REGISTER";
                 return;
             }
             
             if(result.status === "success"){
-                alert("✅ Registration Successful!\n\nYour Player ID: " + result.id + "\n\nStatus: Pending Verification");
+                let successMsg = `✅ Congratulations! Your request has been submitted.<br><br>
+                <span style="font-size:14px; font-weight:normal; color:#ddd;">Your Player ID: <b>${result.id}</b></span><br><br>
+                <span style="font-size:12px; color:#aaa;">* Disclaimer: You will be informed by the organizer about your registration status. Players cannot check their status online.</span>`;
+                
+                alert(successMsg);
                 document.getElementById("registrationForm").reset();
                 
                 // Clear custom selects
@@ -463,14 +501,13 @@ document.addEventListener("click", async function(e) {
             }
             
             btn.disabled = false;
-            btn.innerHTML = "CONFIRM & REGISTER";
         }
         catch (error) {
             console.log(error);
             clearInterval(loadingInterval);
+            hideLoadingModal();
             alert("❌ Registration failed. Please try again.");
             btn.disabled = false;
-            btn.innerHTML = "CONFIRM & REGISTER";
         }
     }
 });

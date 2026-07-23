@@ -233,24 +233,24 @@ document.getElementById("dob")?.addEventListener("change",function(){
 
 
 
-// FILE TO BASE64 WITH COMPRESSION
-
-function fileToBase64(file){
-    return new Promise((resolve,reject)=>{
+// IMAGE COMPRESSION
+function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        if (!file) return reject(new Error("No file provided"));
+        
         if (!file.type.match(/image.*/)) {
             let reader = new FileReader();
             reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject();
+            reader.onerror = () => reject(new Error("FileReader error"));
             reader.readAsDataURL(file);
             return;
         }
 
         let reader = new FileReader();
-        reader.onload = function(event) {
-            let img = new Image();
-            img.onload = function() {
+        reader.onload = function (readerEvent) {
+            let image = new Image();
+            image.onload = function () {
                 let canvas = document.createElement("canvas");
-                let ctx = canvas.getContext("2d");
                 
                 let MAX_WIDTH = 800;
                 let MAX_HEIGHT = 800;
@@ -333,8 +333,8 @@ form.addEventListener("submit", async function(e){
             button.disabled = true;
         }
 
-        let photo = await fileToBase64(photoFile);
-        let payment = await fileToBase64(paymentFile);
+        let photo = await compressImage(photoFile, 800, 800, 0.7);
+        let payment = await compressImage(paymentFile, 800, 800, 0.7);
 
         window.registrationData = {
             name: document.getElementById("playerName").value,
@@ -369,8 +369,11 @@ form.addEventListener("submit", async function(e){
         }
     }
     catch(error){
-        console.log(error);
-        alert("❌ Error preparing summary: " + (error.message || "Unknown error"));
+        console.error(error);
+        let errorMsg = "Unknown error";
+        if (error && error.message) errorMsg = error.message;
+        else if (typeof error === "string") errorMsg = error;
+        alert("❌ Error preparing summary: " + errorMsg);
         let button = document.getElementById("reviewBtn");
         if (button) {
             button.disabled = false;

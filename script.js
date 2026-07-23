@@ -238,10 +238,24 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
     return new Promise((resolve, reject) => {
         if (!file) return reject(new Error("No file provided"));
         
+        let timeoutId = setTimeout(() => {
+            reject(new Error("Image compression timed out. Please try a different image."));
+        }, 15000);
+
+        function finish(result) {
+            clearTimeout(timeoutId);
+            resolve(result);
+        }
+
+        function fail(err) {
+            clearTimeout(timeoutId);
+            reject(err);
+        }
+
         if (!file.type.match(/image.*/)) {
             let reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(new Error("FileReader error"));
+            reader.onload = () => finish(reader.result);
+            reader.onerror = () => fail(new Error("FileReader error"));
             reader.readAsDataURL(file);
             return;
         }
@@ -250,37 +264,52 @@ function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
         reader.onload = function (readerEvent) {
             let image = new Image();
             image.onload = function () {
-                let canvas = document.createElement("canvas");
-                
-                let MAX_WIDTH = 800;
-                let MAX_HEIGHT = 800;
-                let width = img.width;
-                let height = img.height;
-                
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height = Math.round(height * MAX_WIDTH / width);
-                        width = MAX_WIDTH;
+                try {
+                    let canvas = document.createElement("canvas");
+                    let width = image.width;
+                    let height = image.height;
+
+                    if (!width || !height) throw new Error("Invalid image dimensions");
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
                     }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width = Math.round(width * MAX_HEIGHT / height);
-                        height = MAX_HEIGHT;
-                    }
+
+                    canvas.width = Math.max(1, Math.floor(width));
+                    canvas.height = Math.max(1, Math.floor(height));
+
+                    let ctx = canvas.getContext("2d");
+                    if (!ctx) throw new Error("Canvas 2D context not supported");
+                    
+                    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                    finish(canvas.toDataURL("image/jpeg", quality));
+                } catch (e) {
+                    fail(e);
                 }
-                
-                canvas.width = width;
-                canvas.height = height;
-                ctx.drawImage(img, 0, 0, width, height);
-                
-                let dataUrl = canvas.toDataURL("image/jpeg", 0.6);
-                resolve(dataUrl);
             };
-            img.onerror = reject;
-            img.src = event.target.result;
+            image.onerror = function () {
+                fail(new Error("Failed to load image format"));
+            };
+            image.src = readerEvent.target.result;
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        reader.onerror = function () {
+            fail(new Error("Failed to read file"));
+        };
+        
+        try {
+            reader.readAsDataURL(file);
+        } catch (e) {
+            fail(e);
+        }
     });
 }
 

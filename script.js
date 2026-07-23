@@ -327,9 +327,25 @@ form.addEventListener("submit", async function(e){
             return;
         }
 
+        let maxSize = 10 * 1024 * 1024; // 10MB
+        if (photoFile.size > maxSize) {
+            alert("❌ Player Photo is too large! Maximum 10MB image is accepted.");
+            return;
+        }
+        if (paymentFile.size > maxSize) {
+            alert("❌ Payment Screenshot is too large! Maximum 10MB image is accepted.");
+            return;
+        }
+
+        let formContainer = document.getElementById("registrationForm");
+        if (formContainer) {
+            formContainer.style.pointerEvents = "none";
+            formContainer.style.opacity = "0.7";
+        }
+
         let button = document.getElementById("reviewBtn");
         if (button) {
-            button.innerHTML = "PREPARING...";
+            button.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> PREPARING...";
             button.disabled = true;
         }
 
@@ -374,6 +390,13 @@ form.addEventListener("submit", async function(e){
         if (error && error.message) errorMsg = error.message;
         else if (typeof error === "string") errorMsg = error;
         alert("❌ Error preparing summary: " + errorMsg);
+        
+        let formContainer = document.getElementById("registrationForm");
+        if (formContainer) {
+            formContainer.style.pointerEvents = "auto";
+            formContainer.style.opacity = "1";
+        }
+
         let button = document.getElementById("reviewBtn");
         if (button) {
             button.disabled = false;
@@ -391,6 +414,18 @@ document.addEventListener("click", function(e) {
         document.body.style.overflow = "auto";
         let logoLink = document.querySelector(".logo");
         if(logoLink) logoLink.style.pointerEvents = "auto";
+
+        let formContainer = document.getElementById("registrationForm");
+        if (formContainer) {
+            formContainer.style.pointerEvents = "auto";
+            formContainer.style.opacity = "1";
+        }
+        
+        let button = document.getElementById("reviewBtn");
+        if (button) {
+            button.disabled = false;
+            button.innerHTML = "REVIEW & SUBMIT";
+        }
     }
 });
 
@@ -464,36 +499,44 @@ document.addEventListener("click", async function(e) {
             });
             
             let result = await response.json();
+            
             clearInterval(loadingInterval);
             hideLoadingModal();
+            
+            if (modalContent) {
+                modalContent.style.pointerEvents = "auto";
+                modalContent.style.opacity = "1";
+            }
             
             if(result.status === "duplicate"){
                 alert("❌ This mobile number is already registered.");
                 btn.disabled = false;
+                btn.innerHTML = "CONFIRM";
                 return;
             }
             
             if(result.status === "full"){
                 alert("❌ All 64 player slots are filled.");
                 btn.disabled = false;
+                btn.innerHTML = "CONFIRM";
                 return;
             }
             
             if(result.status === "success"){
-                let successMsg = `✅ Congratulations! Your request has been submitted.<br><br>
-                <span style="font-size:14px; font-weight:normal; color:#ddd;">Your Player ID: <b>${result.id}</b></span><br><br>
-                <span style="font-size:12px; color:#aaa;">* Disclaimer: You will be informed by the organizer about your registration status. Players cannot check their status online.</span>`;
+                alert("✅ Registration Successful!\n\nYour Player ID: " + result.id + "\n\nStatus: Pending Verification");
                 
-                alert(successMsg);
-                document.getElementById("registrationForm").reset();
+                let formContainer = document.getElementById("registrationForm");
+                if (formContainer) {
+                    formContainer.reset();
+                    formContainer.style.pointerEvents = "auto";
+                    formContainer.style.opacity = "1";
+                }
                 
                 // Clear custom selects
                 let selectedDivs = document.getElementsByClassName("select-selected");
                 let selects = document.getElementsByTagName("select");
                 for(let i=0; i<selects.length; i++) {
-                     if (selectedDivs[i] && selects[i].options.length > 0) {
-                         selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
-                     }
+                     selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
                 }
                 
                 document.getElementById("summaryModal").style.display = "none";
@@ -504,13 +547,20 @@ document.addEventListener("click", async function(e) {
             }
             
             btn.disabled = false;
+            btn.innerHTML = "CONFIRM";
         }
         catch (error) {
             console.log(error);
             clearInterval(loadingInterval);
             hideLoadingModal();
             alert("❌ Registration failed. Please try again.");
+            
+            if (modalContent) {
+                modalContent.style.pointerEvents = "auto";
+                modalContent.style.opacity = "1";
+            }
             btn.disabled = false;
+            btn.innerHTML = "CONFIRM";
         }
     }
 });
@@ -565,39 +615,39 @@ document.addEventListener("DOMContentLoaded", function(){
         registrationForm.style.display = "none";
     }
 
+    if (localStorage.getItem("rulesAccepted") === "true") {
+        if (rulesPopup) rulesPopup.style.display = "none";
+        if (checkRegistrationDeadline()) {
+            if (registrationForm) {
+                registrationForm.style.display = "block";
+                registrationForm.classList.add("form-appear-animation");
+            }
+        }
+    }
 
     continueBtn.addEventListener("click", function(){
-
-
         if(!agreeCheck.checked){
-
             alert("Please accept the rules & regulations first.");
             return;
-
         }
 
+        if (!checkRegistrationDeadline()) {
+            return; 
+        }
+        
+        localStorage.setItem("rulesAccepted", "true");
 
         rulesPopup.style.display = "none";
-
-
         registrationForm.style.display = "block";
         registrationForm.classList.add("form-appear-animation");
-
 
         window.scrollTo({
             top:0,
             behavior:"smooth"
         });
-
-
     });
-
-
 });
-if(!checkRegistrationDeadline()){
-    let regForm = document.getElementById("registrationForm");
-    if (regForm) regForm.style.display = "none";
-}
+
 // MULTIPLE QR ROTATION
 
 const qrList = [

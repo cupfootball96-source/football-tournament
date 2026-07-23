@@ -465,14 +465,28 @@ async function loadVerifiedPlayers() {
         // Limit to 4 players for the homepage
         const latestPlayers = players.slice(0, 4);
 
+        // Helper to convert Google Drive URL to direct image URL
+        const getDirectImageUrl = (url) => {
+            if (!url) return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop';
+            if (url.includes('/d/')) {
+                const parts = url.split('/d/');
+                if (parts.length > 1) {
+                    const id = parts[1].split('/')[0];
+                    return "https://lh3.googleusercontent.com/d/" + id + "=w600?authuser=0";
+                }
+            }
+            return url;
+        };
+
         latestPlayers.forEach((player, index) => {
             // Add staggered delay for animation
             const delay = index * 0.1;
+            const photoUrl = getDirectImageUrl(player.photo);
             
             grid.innerHTML += `
                 <div class="player-card fade-up" style="animation-delay: ${delay}s">
                     <div class="player-photo">
-                        <img src="${player.photo || 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop'}" alt="Player">
+                        <img src="${photoUrl}" alt="Player">
                     </div>
                     <div class="player-info">
                         <h3>${player.name}</h3>
@@ -485,11 +499,11 @@ async function loadVerifiedPlayers() {
                             </div>
                             <div class="stat">
                                 <span class="label">Foot</span>
-                                <span class="value">N/A</span>
+                                <span class="value">${player.foot || 'N/A'}</span>
                             </div>
                             <div class="stat">
                                 <span class="label">Exp</span>
-                                <span class="value">N/A</span>
+                                <span class="value">${player.experience || 'N/A'}</span>
                             </div>
                         </div>
                         <div class="player-status"><i class="fa-solid fa-check-circle"></i> Verified</div>
@@ -503,7 +517,7 @@ async function loadVerifiedPlayers() {
     }
 }
 
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
     loadVerifiedPlayers();
 });
 

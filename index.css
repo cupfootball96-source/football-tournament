@@ -1326,12 +1326,28 @@ nav a:hover::after{
 
     display:grid;
 
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    grid-template-columns:repeat(4,1fr);
 
     gap:20px;
 
-    margin-top:50px;
+    margin-top:30px;
 
+}
+
+@media (max-width: 1024px) {
+    .player-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .player-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 480px) {
+    .player-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .player-card{
@@ -1436,13 +1452,15 @@ nav a:hover::after{
 
 .player-stats{
 
-    display:flex;
+    display:grid;
+    
+    grid-template-columns:repeat(3,1fr);
 
-    justify-content:space-between;
+    gap:5px;
 
     background:rgba(0,0,0,.3);
 
-    padding:10px;
+    padding:10px 5px;
 
     border-radius:12px;
 
@@ -1457,14 +1475,18 @@ nav a:hover::after{
     flex-direction:column;
 
     align-items:center;
+    
+    justify-content:center;
 
     gap:3px;
+    
+    min-width:0;
 
 }
 
 .player-stats .label{
 
-    font-size:10px;
+    font-size:9px;
 
     color:#888;
 
@@ -1476,11 +1498,17 @@ nav a:hover::after{
 
 .player-stats .value{
 
-    font-size:12px;
+    font-size:11px;
 
     color:#fff;
 
     font-weight:600;
+    
+    text-align:center;
+    
+    word-break:break-word;
+    
+    line-height:1.2;
 
 }
 

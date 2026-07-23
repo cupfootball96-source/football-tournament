@@ -207,9 +207,9 @@ async function loadPendingPlayers(){
 <td>
 
 <img
-src="${player.photo}"
+src="${getDirectImageUrl(player.photo)}"
 style="width:55px;height:55px;border-radius:10px;cursor:pointer"
-onclick="previewImage('${player.photo}')">
+onclick="previewImage('${getDirectImageUrl(player.photo)}')">
 
 </td>
 
@@ -280,6 +280,20 @@ Reject
 
 
 // ======================================
+// Helper to convert Google Drive URL to direct image URL
+const getDirectImageUrl = (url) => {
+    if (!url) return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop';
+    if (url.includes('/d/')) {
+        const parts = url.split('/d/');
+        if (parts.length > 1) {
+            const id = parts[1].split('/')[0];
+            return "https://lh3.googleusercontent.com/d/" + id + "=w600?authuser=0";
+        }
+    }
+    return url;
+};
+
+// ======================================
 // DATE FORMAT
 // ======================================
 
@@ -326,7 +340,7 @@ async function loadApprovedPlayers(){
 
         <tr>
 
-        <td colspan="6">
+        <td colspan="7">
 
         No Approved Players
 
@@ -349,6 +363,15 @@ async function loadApprovedPlayers(){
 <td>
 
 ${player.id}
+
+</td>
+
+<td>
+
+<img
+src="${getDirectImageUrl(player.photo)}"
+style="width:55px;height:55px;border-radius:10px;cursor:pointer"
+onclick="previewImage('${getDirectImageUrl(player.photo)}')">
 
 </td>
 
@@ -420,7 +443,7 @@ async function loadRejectedPlayers(){
 
         <tr>
 
-        <td colspan="5">
+        <td colspan="6">
 
         No Rejected Players
 
@@ -443,6 +466,15 @@ async function loadRejectedPlayers(){
 <td>
 
 ${player.id}
+
+</td>
+
+<td>
+
+<img
+src="${getDirectImageUrl(player.photo)}"
+style="width:55px;height:55px;border-radius:10px;cursor:pointer"
+onclick="previewImage('${getDirectImageUrl(player.photo)}')">
 
 </td>
 

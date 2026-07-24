@@ -133,7 +133,7 @@ document.addEventListener("click", closeAllSelect);
 // GOOGLE APPS SCRIPT URL
 
 const scriptURL = 
-"https://script.google.com/macros/s/AKfycbzR7CAKGA654uYzwks5wt12OrKYiYHLFaaH6HABdIZJTYPll1gRCvoaZxNkrZ9QOtKGLA/exec";
+"https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
 
 
 

@@ -1399,7 +1399,7 @@ nav a:hover::after{
 
     object-fit:cover;
     
-    object-position: top;
+    object-position: 50% 0;
 
     transition:.5s;
 
@@ -1673,7 +1673,7 @@ nav a:hover::after{
 
     .player-photo{
 
-        height:220px;
+        height:140px;
 
     }
 

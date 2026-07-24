@@ -1346,7 +1346,8 @@ nav a:hover::after{
 }
 @media (max-width: 480px) {
     .player-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px; /* Reduced gap to fit cards better on very small screens */
     }
 }
 
@@ -1664,7 +1665,7 @@ nav a:hover::after{
 
     .player-grid{
 
-        grid-template-columns:1fr;
+        grid-template-columns:repeat(2, 1fr);
 
     }
 

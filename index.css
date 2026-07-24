@@ -1398,6 +1398,8 @@ nav a:hover::after{
     height:100%;
 
     object-fit:cover;
+    
+    object-position: top;
 
     transition:.5s;
 

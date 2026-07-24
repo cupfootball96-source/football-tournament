@@ -1393,15 +1393,17 @@ nav a:hover::after{
 
 .player-photo img{
 
-    width:100%;
+    display: block;
 
-    height:100%;
+    width: 100%;
 
-    object-fit:cover;
+    height: 100%;
+
+    object-fit: cover;
     
-    object-position: 50% 0;
+    object-position: center top;
 
-    transition:.5s;
+    transition: .5s;
 
 }
 

@@ -532,11 +532,6 @@ document.addEventListener("click", async function(e) {
             clearInterval(loadingInterval);
             hideLoadingModal();
             
-            if (modalContent) {
-                modalContent.style.pointerEvents = "auto";
-                modalContent.style.opacity = "1";
-            }
-            
             if(result.status === "duplicate"){
                 alert("❌ This mobile number is already registered.");
                 btn.disabled = false;
@@ -565,7 +560,9 @@ document.addEventListener("click", async function(e) {
                 let selectedDivs = document.getElementsByClassName("select-selected");
                 let selects = document.getElementsByTagName("select");
                 for(let i=0; i<selects.length; i++) {
-                     selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
+                     if (selectedDivs[i] && selects[i].options && selects[i].options.length > 0) {
+                         selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
+                     }
                 }
                 
                 document.getElementById("summaryModal").style.display = "none";
@@ -584,10 +581,6 @@ document.addEventListener("click", async function(e) {
             hideLoadingModal();
             alert("❌ Registration failed. Please try again.");
             
-            if (modalContent) {
-                modalContent.style.pointerEvents = "auto";
-                modalContent.style.opacity = "1";
-            }
             btn.disabled = false;
             btn.innerHTML = "CONFIRM";
         }

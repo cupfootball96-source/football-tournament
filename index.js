@@ -499,7 +499,7 @@ console.log("Converted URL:", photoUrl);
             grid.innerHTML += `
                 <div class="player-card fade-up" style="animation-delay: ${delay}s">
                     <div class="player-photo">
-                        <img src="${photoUrl}" alt="Player">
+                        <img src="${photoUrl}" alt="Player" onerror="console.log('Image Failed:', this.src)">
                     </div>
                     <div class="player-info">
                         <h3>${player.name}</h3>

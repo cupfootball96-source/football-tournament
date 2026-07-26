@@ -492,6 +492,9 @@ async function loadVerifiedPlayers() {
             // Add staggered delay for animation
             const delay = index * 0.1;
             const photoUrl = getDirectImageUrl(player.photo);
+            console.log("Player:", player.name);
+console.log("Original URL:", player.photo);
+console.log("Converted URL:", photoUrl);
             
             grid.innerHTML += `
                 <div class="player-card fade-up" style="animation-delay: ${delay}s">

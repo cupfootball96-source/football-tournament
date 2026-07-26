@@ -466,17 +466,27 @@ async function loadVerifiedPlayers() {
         const latestPlayers = players.slice(0, 4);
 
         // Helper to convert Google Drive URL to direct image URL
-        const getDirectImageUrl = (url) => {
-            if (!url) return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop';
-            if (url.includes('/d/')) {
-                const parts = url.split('/d/');
-                if (parts.length > 1) {
-                    const id = parts[1].split('/')[0];
-                    return "https://lh3.googleusercontent.com/d/" + id + "=w600?authuser=0";
-                }
-            }
-            return url;
-        };
+       const getDirectImageUrl = (url) => {
+
+    if (!url) {
+        return "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop";
+    }
+
+    let fileId = "";
+
+    if (url.includes("/d/")) {
+        fileId = url.split("/d/")[1].split("/")[0];
+    }
+    else if (url.includes("id=")) {
+        fileId = url.split("id=")[1].split("&")[0];
+    }
+
+    if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w600`;
+    }
+
+    return url;
+};
 
         latestPlayers.forEach((player, index) => {
             // Add staggered delay for animation

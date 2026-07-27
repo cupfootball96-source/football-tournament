@@ -1,0 +1,99 @@
+/* cropper-ui.css */
+/* Modal Overlay */
+.image-crop-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Modal Content Container */
+.image-crop-container-wrapper {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.image-crop-modal-title {
+    color: #fff;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* The area where the image is cropped */
+.img-container {
+    max-height: 60vh;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: #000;
+    overflow: hidden;
+}
+
+.img-container img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Buttons */
+.cropper-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cropper-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-cancel-crop {
+    background: #333;
+    color: #fff;
+}
+.btn-cancel-crop:hover {
+    background: #444;
+}
+
+.btn-apply-crop {
+    background: var(--gold);
+    color: #000;
+}
+.btn-apply-crop:hover {
+    background: #fff;
+    box-shadow: 0 0 15px var(--gold);
+}
+
+/* Overriding default Cropper.js styles to fit our dark theme */
+.cropper-view-box,
+.cropper-face {
+    border-radius: 0; /* Keep it square */
+}
+.cropper-line, .cropper-point {
+    background-color: var(--gold);
+}
+.cropper-view-box {
+    outline: 2px solid var(--gold);
+}
+/* Darken the uncropped area inside the cropper */
+.cropper-modal {
+    opacity: 0.8 !important;
+    background-color: #000;
+}

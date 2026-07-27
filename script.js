@@ -349,7 +349,7 @@ form.addEventListener("submit", async function(e){
             alert("File input ID missing. Check HTML.");
             return;
         }
-        let photoFile = photoInput.files[0];
+        let photoFile = window.croppedPhotoBlob || photoInput.files[0];
         let paymentFile = paymentInput.files[0];
         if(!photoFile || !paymentFile){
             alert("Please upload Player Photo and Payment Screenshot.");
@@ -378,7 +378,7 @@ form.addEventListener("submit", async function(e){
             button.disabled = true;
         }
 
-        let photo = await compressImage(photoFile, 800, 800, 0.7);
+        let photo = await compressImage(photoFile, 600, 600, 0.7);
         let payment = await compressImage(paymentFile, 800, 800, 0.7);
 
         window.registrationData = {

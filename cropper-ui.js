@@ -41,13 +41,21 @@ document.addEventListener("DOMContentLoaded", function() {
         if (files && files.length > 0) {
             const file = files[0];
             
-            // Only process image files
-            if (!file.type.startsWith('image/')) return;
+            // Mobile Android cameras sometimes return empty mime types, so we don't strictly block if it's empty, 
+            // but we do block obvious non-images if the mime type is present.
+            if (file.type && !file.type.startsWith('image/')) return;
             
             const reader = new FileReader();
             reader.onload = function(event) {
+                // IMPORTANT: Wait for the image to actually decode and render in the DOM
+                // before initializing Cropper.js, otherwise slower mobile devices will 
+                // render a 0x0 blank canvas!
+                cropperImage.onload = function() {
+                    openCropper();
+                    // Clear the onload so it doesn't accidentally fire again
+                    cropperImage.onload = null;
+                };
                 cropperImage.src = event.target.result;
-                openCropper();
             };
             reader.readAsDataURL(file);
         }

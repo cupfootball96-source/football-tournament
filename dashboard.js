@@ -287,7 +287,7 @@ const getDirectImageUrl = (url) => {
         const parts = url.split('/d/');
         if (parts.length > 1) {
             const id = parts[1].split('/')[0];
-            return "https://lh3.googleusercontent.com/d/" + id + "=w600";
+            return "https://lh3.googleusercontent.com/d/" + id + "=w600?authuser=0";
         }
     }
     return url;

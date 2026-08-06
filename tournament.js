@@ -510,16 +510,36 @@ async function fetchWithCache(url, cacheKey, ttl = 5 * 60 * 1000) {
         }
     }
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Network response was not ok");
-    const data = await response.json();
+    let retries = 3;
+    while (retries > 0) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const text = await response.text();
+            
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                throw new Error("Received HTML instead of JSON. Rate limit or server error.");
+            }
+            
+            const data = JSON.parse(text);
 
-    sessionStorage.setItem(cacheKey, JSON.stringify({
-        timestamp: Date.now(),
-        data: data
-    }));
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+                timestamp: Date.now(),
+                data: data
+            }));
 
-    return data;
+            return data;
+        } catch (error) {
+            retries--;
+            console.warn(`Fetch failed for ${cacheKey}. Retries left: ${retries}`, error);
+            if (retries === 0) {
+                console.error("All retries failed for", cacheKey);
+                return null;
+            }
+            await new Promise(res => setTimeout(res, (3 - retries) * 1000));
+        }
+    }
 }
 
 async function loadTournamentData() {
@@ -567,12 +587,12 @@ async function loadTournamentData() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.add('loaded'); // Fix vertical scrolling
-    loadTournamentData();
+    await loadTournamentData();
     setupTabs();
-    initTeamPage();
-    loadAllVerifiedPlayers();
+    await initTeamPage();
+    await loadAllVerifiedPlayers();
 });
 
 // Setup Tabs Logic
@@ -659,7 +679,7 @@ function renderTeamsFull(teams, grid) {
     displayTeams.forEach((team, i) => {
         const logoUrl = getTeamLogoUrl(team.logoURL);
         const logoHtml = logoUrl 
-            ? `<img src="${logoUrl}" alt="${team.teamName} Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+            ? `<img src="${logoUrl}" alt="${team.teamName} Logo" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
             : `<i class="fa-solid fa-shield-halved"></i>`;
         
         let ownerName = (team.owner && team.owner.ownerName) ? team.owner.ownerName : "TBA";
@@ -918,7 +938,7 @@ async function loadAllVerifiedPlayers() {
             grid.innerHTML += `
                 <div class="player-card fade-up">
                     <div class="player-photo">
-                        <img src="${photoUrl}" alt="Player">
+                        <img src="${photoUrl}" alt="Player" loading="lazy">
                     </div>
                     <div class="player-info">
                         <h3>${player.name}</h3>

@@ -59,6 +59,28 @@ window.addEventListener("load", () => {
 
 window.adminCache = window.adminCache || {};
 
+async function fetchWithRetry(url, options = {}, retries = 3) {
+    while (retries > 0) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const text = await response.text();
+            
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                throw new Error("Received HTML instead of JSON. Rate limit or server error.");
+            }
+            
+            return JSON.parse(text);
+        } catch (error) {
+            retries--;
+            console.warn(`Fetch failed. Retries left: ${retries}`, error);
+            if (retries === 0) throw error;
+            await new Promise(res => setTimeout(res, (3 - retries) * 1000));
+        }
+    }
+}
+
 async function forceRefreshDashboard() {
     window.adminCache = {};
     if (typeof loadAdminTournamentData === "function") window.adminCache.tournamentData = null;
@@ -114,8 +136,7 @@ async function loadStats(){
     if (window.adminCache.stats) {
         var data = window.adminCache.stats;
     } else {
-        const response = await fetch(WEB_APP_URL + "?action=getStats");
-        var data = await response.json();
+        var data = await fetchWithRetry(WEB_APP_URL + "?action=getStats");
         window.adminCache.stats = data;
     }
 
@@ -198,12 +219,11 @@ async function loadPendingPlayers(){
         table.innerHTML = skeletonRows;
     }
 
-    if (window.adminCache.pendingPlayers) {
-        var players = window.adminCache.pendingPlayers;
+    if (window.adminCache.pending) {
+        var players = window.adminCache.pending;
     } else {
-        const response = await fetch(WEB_APP_URL + "?action=getPlayers");
-        var players = await response.json();
-        window.adminCache.pendingPlayers = players;
+        var players = await fetchWithRetry(WEB_APP_URL + "?action=getPlayers");
+        window.adminCache.pending = players;
     }
 
     table.innerHTML = "";
@@ -237,6 +257,7 @@ async function loadPendingPlayers(){
 <td>
 
 <img
+loading="lazy"
 src="${getDirectImageUrl(player.photo)}"
 style="width:55px;height:55px;border-radius:10px;cursor:pointer"
 onclick="previewImage('${getDirectImageUrl(player.photo)}')">
@@ -388,12 +409,11 @@ async function loadApprovedPlayers(){
         if (el) el.innerHTML = '<li><div class="skeleton skeleton-text" style="width:80%; margin:0;"></div></li><li><div class="skeleton skeleton-text" style="width:60%; margin:0;"></div></li>';
     });
 
-    if (window.adminCache.approvedPlayers) {
-        var players = window.adminCache.approvedPlayers;
+    if (window.adminCache.approved) {
+        var players = window.adminCache.approved;
     } else {
-        const response = await fetch(WEB_APP_URL + "?action=getApprovedPlayers");
-        var players = await response.json();
-        window.adminCache.approvedPlayers = players;
+        var players = await fetchWithRetry(WEB_APP_URL + "?action=getApprovedPlayers");
+        window.adminCache.approved = players;
     }
 
     // Calculate Stats
@@ -435,7 +455,7 @@ async function loadApprovedPlayers(){
             let recentPlayers = players.slice(-5).reverse(); // Get the last 5 players
             recentFeedEl.innerHTML = recentPlayers.map(p => `
                 <div style="display:flex; align-items:center; gap:15px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                    <img src="${getDirectImageUrl(p.photo)}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
+                    <img loading="lazy" src="${getDirectImageUrl(p.photo)}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid var(--gold);">
                     <div style="flex:1;">
                         <h5 style="margin:0; font-size:15px; color:white; font-weight:600;">${p.name}</h5>
                         <p style="margin:4px 0 0 0; font-size:12px; color:rgba(255,255,255,0.6);"><span style="color:var(--gold);">${p.id}</span> • ${p.position}</p>
@@ -490,6 +510,7 @@ async function loadApprovedPlayers(){
 <td>
 
 <img
+loading="lazy"
 src="${getDirectImageUrl(player.photo)}"
 style="width:55px;height:55px;border-radius:10px;cursor:pointer"
 onclick="previewImage('${getDirectImageUrl(player.photo)}')">
@@ -558,12 +579,11 @@ async function loadRejectedPlayers(){
         table.innerHTML = skeletonRows;
     }
 
-    if (window.adminCache.rejectedPlayers) {
-        var players = window.adminCache.rejectedPlayers;
+    if (window.adminCache.rejected) {
+        var players = window.adminCache.rejected;
     } else {
-        const response = await fetch(WEB_APP_URL + "?action=getRejectedPlayers");
-        var players = await response.json();
-        window.adminCache.rejectedPlayers = players;
+        var players = await fetchWithRetry(WEB_APP_URL + "?action=getRejectedPlayers");
+        window.adminCache.rejected = players;
     }
 
     table.innerHTML = "";
@@ -607,6 +627,7 @@ async function loadRejectedPlayers(){
 <td>
 
 <img
+loading="lazy"
 src="${getDirectImageUrl(player.photo)}"
 style="width:55px;height:55px;border-radius:10px;cursor:pointer"
 onclick="previewImage('${getDirectImageUrl(player.photo)}')">
@@ -658,53 +679,16 @@ async function approvePlayer(btn, row){
 
     try{
 
-        const response = await fetch(
-
-            WEB_APP_URL +
-
-            "?action=approve&row=" +
-
-            row
-
+        const result = await fetchWithRetry(
+            WEB_APP_URL + "?action=approve&row=" + row,
+            { method: "GET" }
         );
 
-        const data = await response.json();
-
-        if(data.status==="success"){
+        if(result.status==="success"){
 
             showToast("Player Approved","success");
 
             await forceRefreshDashboard();
-
-    // Mobile Menu logic
-    const menuToggle = document.getElementById('mobileMenuToggle');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-    const sidebar = document.querySelector('.sidebar');
-    
-    if (menuToggle) {
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('open');
-            sidebarOverlay.classList.add('show');
-        });
-    }
-    
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            sidebarOverlay.classList.remove('show');
-        });
-    }
-    
-    document.querySelectorAll('.sidebar li').forEach(li => {
-        li.addEventListener('click', () => {
-            if (window.innerWidth <= 992 && sidebar) {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('show');
-            }
-        });
-    });
-
-
         }else{
 
             showToast("Approval Failed","error");
@@ -743,23 +727,12 @@ async function rejectPlayer(btn, row){
 
     try{
 
-        const response = await fetch(
-
-            WEB_APP_URL +
-
-            "?action=reject&row=" +
-
-            row +
-
-            "&reason=" +
-
-            encodeURIComponent(reason)
-
+        const result = await fetchWithRetry(
+            WEB_APP_URL + "?action=reject&row=" + row + "&reason=" + encodeURIComponent(reason),
+            { method: "GET" }
         );
 
-        const data = await response.json();
-
-        if(data.status==="success"){
+        if(result.status==="success"){
 
             showToast("Player Rejected","success");
 

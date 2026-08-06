@@ -435,20 +435,33 @@ async function fetchWithCache(url, cacheKey, ttl = 300000) {
         }
     }
 
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    
-    const text = await response.text();
-    try {
-        const data = JSON.parse(text);
-        localStorage.setItem(cacheKey, text);
-        localStorage.setItem(cacheKey + '_time', now.toString());
-        return data;
-    } catch(e) {
-        console.error("Failed to parse JSON for", cacheKey, ". Response starts with:", text.substring(0, 50));
-        throw e;
+    let retries = 3;
+    while (retries > 0) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            
+            const text = await response.text();
+            
+            // If Google returns HTML instead of JSON (due to rate limiting), throw to trigger retry
+            if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+                throw new Error("Received HTML instead of JSON. Rate limit or server error.");
+            }
+            
+            const data = JSON.parse(text);
+            localStorage.setItem(cacheKey, JSON.stringify(data));
+            localStorage.setItem(cacheKey + '_time', now);
+            return data;
+        } catch (error) {
+            retries--;
+            console.warn(`Fetch failed for ${cacheKey}. Retries left: ${retries}`, error);
+            if (retries === 0) {
+                console.error("All retries failed for", cacheKey);
+                return [];
+            }
+            // Exponential backoff: wait 1s, then 2s
+            await new Promise(res => setTimeout(res, (3 - retries) * 1000));
+        }
     }
 }
 
@@ -555,7 +568,7 @@ async function loadVerifiedPlayers() {
             grid.innerHTML += `
                 <div class="player-card fade-up" style="animation-delay: ${delay}s">
                     <div class="player-photo">
-                        <img src="${photoUrl}" alt="Player">
+                        <img src="${photoUrl}" alt="Player" loading="lazy">
                     </div>
                     <div class="player-info">
                         <h3>${player.name}</h3>
@@ -630,7 +643,7 @@ async function loadTeams() {
             displayTeams.forEach((team, i) => {
                 const logoUrl = getDirectImageUrl(team.logoURL);
                 const logoHtml = logoUrl 
-                    ? `<img src="${logoUrl}" alt="${team.teamName} Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                    ? `<img src="${logoUrl}" alt="${team.teamName} Logo" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
                     : `<i class="fa-solid fa-shield-halved"></i>`;
                 
                 let ownerName = (team.owner && team.owner.ownerName) ? team.owner.ownerName : "TBA";
@@ -723,9 +736,9 @@ async function loadTeams() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadVerifiedPlayers();
-    loadTeams();
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadVerifiedPlayers();
+    await loadTeams();
 });
 
 // =========================================

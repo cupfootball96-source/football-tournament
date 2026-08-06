@@ -16,6 +16,16 @@
 <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 <link rel="stylesheet" href="cropper-ui.css">
+<!-- Vercel Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  if (window.location.protocol !== 'file:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = '/_vercel/insights/script.js';
+    document.head.appendChild(script);
+  }
+</script>
 </head>
 
 
@@ -285,6 +295,7 @@ pattern="[0-9]{10}"
 oninput="this.value = this.value.replace(/[^0-9]/g, '')"
 placeholder="10 Digit Mobile Number"
 required>
+<span id="mobileError" style="color: #ff4444; font-size: 12px; font-weight: 600; display: none; margin-top: 5px;">This mobile number is already registered.</span>
 
 
 

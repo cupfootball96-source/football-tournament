@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE Match - New Era Cup</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vercel Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      if (window.location.protocol !== 'file:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        var script = document.createElement('script');
+        script.defer = true;
+        script.src = '/_vercel/insights/script.js';
+        document.head.appendChild(script);
+      }
+    </script>
+    <style>
+        .live-container {
+            padding: 120px 20px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .live-badge {
+            background: #ff0000;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            animation: pulse-red 2s infinite;
+            display: inline-block;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,215,0,0.2);
+            background: #000;
+            display: none; /* Hidden until valid stream confirmed */
+        }
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .no-stream-msg {
+            color: #aaa;
+            font-size: 18px;
+            padding: 60px 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body class="loaded">
+    <header id="header">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="assets/logo.png" alt="Logo">
+                <span>NEW ERA CUP</span>
+            </a>
+            <nav id="navMenu">
+                <a href="index.html#home">Home</a>
+                <a href="teams.html">Teams</a>
+                <a href="tournament.html">Tournament Center</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="live-container">
+        <div class="live-badge">🔴 LIVE NOW</div>
+        <h2 style="font-size: 32px; color: var(--gold); margin-bottom: 10px;">Tournament Stream</h2>
+        <p style="color: #ccc; margin-bottom: 40px;">Watch the New Era Cup matches live below.</p>
+        
+        <div class="video-wrapper" id="videoWrapper">
+            <iframe id="liveVideoPlayer" src="about:blank" title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+        </div>
+        
+        <div id="fallbackBtnContainer" style="display: none; margin-top: 20px;">
+            <p style="color: #ccc; margin-bottom: 10px; font-size: 14px;">Having trouble watching the stream here?</p>
+            <a id="fallbackBtnUrl" href="#" target="_blank" style="display: inline-block; padding: 10px 20px; background: #ff0000; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s;"><i class="fa-brands fa-youtube"></i> Watch Directly on YouTube</a>
+        </div>
+        
+        <div class="no-stream-msg" id="noStreamMsg">
+            <i class="fa-solid fa-circle-exclamation" style="color:#ff4444; font-size:40px; margin-bottom:15px; display:block;"></i>
+            No live stream is currently active. Check back soon!
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
+
+        function extractYouTubeId(url) {
+            if (!url) return null;
+            // Handles: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/live/ID, youtube.com/embed/ID
+            const patterns = [
+                /youtu\.be\/([^?&\s]+)/,
+                /youtube\.com\/watch\?v=([^&\s]+)/,
+                /youtube\.com\/live\/([^?&\s]+)/,
+                /youtube\.com\/embed\/([^?&\s]+)/
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+
+        async function loadLiveStream() {
+            const iframe = document.getElementById("liveVideoPlayer");
+            const wrapper = document.getElementById("videoWrapper");
+            const noMsg = document.getElementById("noStreamMsg");
+            const fallbackContainer = document.getElementById("fallbackBtnContainer");
+            const fallbackUrlBtn = document.getElementById("fallbackBtnUrl");
+
+            // Show loading state
+            noMsg.style.display = "block";
+            noMsg.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:var(--gold); font-size:40px; margin-bottom:15px; display:block;"></i>Loading stream...';
+            fallbackContainer.style.display = "none";
+
+            try {
+                const res = await fetch(WEB_APP_URL + "?action=getPublicData");
+                const text = await res.text();
+
+                // Guard: if response is HTML (error page), bail out
+                if (text.trim().startsWith("<")) throw new Error("Invalid response");
+
+                const data = JSON.parse(text);
+                const isLive = data.liveMatchActive === true || data.liveMatchActive === "true";
+                const videoId = extractYouTubeId(data.liveMatchUrl);
+
+                if (isLive && videoId) {
+                    // Only now set the src and show the player
+                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+                    wrapper.style.display = "block";
+                    noMsg.style.display = "none";
+                    
+                    // Show fallback button
+                    fallbackUrlBtn.href = data.liveMatchUrl;
+                    fallbackContainer.style.display = "block";
+                } else {
+                    wrapper.style.display = "none";
+                    fallbackContainer.style.display = "none";
+                    noMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ff4444; font-size:40px; margin-bottom:15px; display:block;"></i>No live stream is currently active. Check back soon!';
+                    noMsg.style.display = "block";
+                }
+            } catch (e) {
+                console.error("Failed to load stream settings", e);
+                wrapper.style.display = "none";
+                fallbackContainer.style.display = "none";
+                noMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color:#ff4444; font-size:40px; margin-bottom:15px; display:block;"></i>Could not connect to stream. Please refresh.';
+                noMsg.style.display = "block";
+            }
+        }
+
+        loadLiveStream();
+    </script>
+</body>
+</html>

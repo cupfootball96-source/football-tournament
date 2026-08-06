@@ -42,29 +42,143 @@ async function loadAdminTournamentData() {
     try {
         window.adminCache = window.adminCache || {};
         
+        let p1 = null, p2 = null;
+
         if (window.adminCache.tournamentData) {
             adminTournamentData = window.adminCache.tournamentData;
         } else {
-            const response = await fetch(WEB_APP_URL + "?action=getTournamentData");
-            adminTournamentData = await response.json();
-            window.adminCache.tournamentData = adminTournamentData;
+            p1 = fetchWithRetry(WEB_APP_URL + "?action=getTournamentData").then(data => {
+                adminTournamentData = data;
+                window.adminCache.tournamentData = adminTournamentData;
+            });
         }
         
         if (window.adminCache.approvedPlayers) {
             allApprovedPlayers = window.adminCache.approvedPlayers;
         } else {
-            const pResponse = await fetch(WEB_APP_URL + "?action=getApprovedPlayers");
-            allApprovedPlayers = await pResponse.json();
-            window.adminCache.approvedPlayers = allApprovedPlayers;
+            p2 = fetchWithRetry(WEB_APP_URL + "?action=getApprovedPlayers").then(data => {
+                allApprovedPlayers = data;
+                window.adminCache.approvedPlayers = allApprovedPlayers;
+            });
         }
+
+        await Promise.all([p1, p2].filter(p => p !== null));
 
         renderTeams();
         renderMatches();
         renderTopScorers();
-    } catch(err) {
-        console.error(err);
-        showToast("Failed to load Tournament Data", "error");
+        initCustomSelects();
+    } catch (e) {
+        console.error("Failed to load tournament data", e);
     }
+}
+
+// ======================================
+// GENERIC CUSTOM SELECT UTILITY
+// ======================================
+function initCustomSelects() {
+    document.querySelectorAll('select.custom-select').forEach(setupCustomSelect);
+}
+
+function setupCustomSelect(select) {
+    // Prevent double-wrapping
+    if (select.dataset.customSelectInit === 'true') return;
+    select.dataset.customSelectInit = 'true';
+    
+    select.style.display = 'none';
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.flex = select.style.flex || '1';
+    wrapper.style.width = select.style.width || '100%';
+    
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    
+    const contentSpan = document.createElement('span');
+    contentSpan.style.display = 'flex';
+    contentSpan.style.alignItems = 'center';
+    contentSpan.style.gap = '8px';
+    
+    const selectedOpt = select.options[select.selectedIndex];
+    contentSpan.innerHTML = selectedOpt ? selectedOpt.text : 'Select...';
+    
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-chevron-down';
+    icon.style.fontSize = '12px';
+    icon.style.opacity = '0.6';
+    
+    trigger.appendChild(contentSpan);
+    trigger.appendChild(icon);
+    
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-options';
+    
+    Array.from(select.children).forEach(child => {
+        if (child.tagName.toLowerCase() === 'optgroup') {
+            const label = document.createElement('div');
+            label.className = 'custom-option-group-label';
+            label.textContent = child.label;
+            label.style.padding = '8px 15px';
+            label.style.fontSize = '11px';
+            label.style.color = 'var(--gold)';
+            label.style.opacity = '0.8';
+            label.style.textTransform = 'uppercase';
+            label.style.letterSpacing = '1px';
+            optionsContainer.appendChild(label);
+            
+            Array.from(child.children).forEach(opt => {
+                const optDiv = document.createElement('div');
+                optDiv.className = 'custom-option';
+                optDiv.textContent = opt.text;
+                optDiv.onclick = (e) => {
+                    e.stopPropagation();
+                    select.value = opt.value;
+                    contentSpan.innerHTML = opt.text;
+                    optionsContainer.classList.remove('show');
+                    trigger.classList.remove('active');
+                    select.dispatchEvent(new Event('change'));
+                };
+                optionsContainer.appendChild(optDiv);
+            });
+        } else if (child.tagName.toLowerCase() === 'option') {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'custom-option';
+            optDiv.textContent = child.text;
+            if (child.value === '') optDiv.style.opacity = '0.5';
+            optDiv.onclick = (e) => {
+                e.stopPropagation();
+                select.value = child.value;
+                contentSpan.innerHTML = child.text;
+                optionsContainer.classList.remove('show');
+                trigger.classList.remove('active');
+                select.dispatchEvent(new Event('change'));
+            };
+            optionsContainer.appendChild(optDiv);
+        }
+    });
+    
+    trigger.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.custom-options').forEach(el => {
+            if (el !== optionsContainer) el.classList.remove('show');
+        });
+        document.querySelectorAll('.custom-select-trigger').forEach(el => {
+            if (el !== trigger) el.classList.remove('active');
+        });
+        optionsContainer.classList.toggle('show');
+        trigger.classList.toggle('active');
+    };
+    
+    wrapper.appendChild(trigger);
+    wrapper.appendChild(optionsContainer);
+    
+    select.parentNode.insertBefore(wrapper, select.nextSibling);
+    
+    select.addEventListener('change', () => {
+        const sel = select.options[select.selectedIndex];
+        if(sel) contentSpan.innerHTML = sel.text;
+    });
 }
 
 function switchTournamentTab(tabId) {
@@ -95,6 +209,7 @@ function renderTeams() {
                 <td>${playersHtml}</td>
                 <td>
                     <button class="approve-btn" onclick="editTeam('${team.teamID}')">Edit</button>
+                    <button class="reject-btn" onclick="deleteTeam('${team.teamID}')" style="margin-left:5px;">Delete</button>
                 </td>
             </tr>
         `;
@@ -137,6 +252,7 @@ function renderMatches() {
                 <td>${statusBadge}</td>
                 <td>
                     <button class="approve-btn" onclick="editMatch('${match.matchID}')">Edit</button>
+                    <button class="reject-btn" onclick="deleteMatch('${match.matchID}')" style="margin-left:5px;">Delete</button>
                 </td>
             </tr>
         `;
@@ -342,6 +458,72 @@ document.getElementById("teamForm").addEventListener("submit", async function(e)
     btn.disabled = false;
 });
 
+async function deleteMatch(matchId) {
+    const confirmed = await showConfirm(
+        "Delete Match",
+        "Are you sure you want to delete this match? This cannot be undone."
+    );
+    if (!confirmed) return;
+    
+    showLoader();
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteMatch", matchID: matchId })
+        });
+        const res = await response.json();
+        
+        if (res.status === "success") {
+            showToast("Match Deleted", "success");
+            // Clear ALL caches - both browser and admin cache - so nothing stale is shown
+            Object.keys(sessionStorage).forEach(k => { if (k.startsWith('nec_')) sessionStorage.removeItem(k); });
+            window.adminCache = {};
+            loadAdminTournamentData();
+        } else {
+            showToast("Failed to delete match", "error");
+        }
+    } catch(err) {
+        console.error(err);
+        showToast("Error deleting match", "error");
+    }
+    hideLoader();
+}
+
+async function deleteTeam(teamId) {
+    const confirmed = await showConfirm(
+        "Delete Team",
+        "Are you sure you want to delete this team? This will remove all assigned players and related match data."
+    );
+    if (!confirmed) return;
+    
+    showLoader();
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "deleteTeam", teamID: teamId })
+        });
+        const res = await response.json();
+        
+        if (res.status === "success") {
+            showToast("Team Deleted", "success");
+            // Clear ALL caches - both browser and admin cache - so nothing stale is shown
+            Object.keys(sessionStorage).forEach(k => { if (k.startsWith('nec_')) sessionStorage.removeItem(k); });
+            window.adminCache = {};
+            loadAdminTournamentData();
+        } else {
+            showToast("Failed to delete team", "error");
+        }
+    } catch(err) {
+        console.error(err);
+        showToast("Error deleting team", "error");
+    }
+    hideLoader();
+}
+
+function updateScorerOptions() {
+    // Optionally wipe scorers if teams change, or just let users handle it.
+}
+
 // MATCH MODAL LOGIC
 function openAddMatchModal() {
     document.getElementById("matchIdInput").value = "";
@@ -352,6 +534,7 @@ function openAddMatchModal() {
     
     populateTeamSelects();
     document.getElementById("matchModal").style.display = "flex";
+    toggleMatchStatusFields();
 }
 
 function editMatch(matchId) {
@@ -382,10 +565,34 @@ function editMatch(matchId) {
     }
     
     document.getElementById("matchModal").style.display = "flex";
+    toggleMatchStatusFields();
 }
 
 function closeMatchModal() {
     document.getElementById("matchModal").style.display = "none";
+}
+
+function toggleMatchStatusFields() {
+    const status = document.getElementById("matchStatusInput").value;
+    const goalsA = document.getElementById("goalsContainerA");
+    const goalsDivider = document.getElementById("goalsDivider");
+    const goalsB = document.getElementById("goalsContainerB");
+    const scorersSection = document.getElementById("scorersSection");
+    
+    if (status === "Scheduled") {
+        goalsA.style.display = "none";
+        goalsDivider.style.display = "none";
+        goalsB.style.display = "none";
+        scorersSection.style.display = "none";
+        document.getElementById("scoreAInput").value = "0";
+        document.getElementById("scoreBInput").value = "0";
+        document.getElementById("scorersContainer").innerHTML = "";
+    } else {
+        goalsA.style.display = "block";
+        goalsDivider.style.display = "block";
+        goalsB.style.display = "block";
+        scorersSection.style.display = "block";
+    }
 }
 
 function populateTeamSelects() {
@@ -480,16 +687,21 @@ function updateScorerOptions() {
 }
 
 function addScorerRow(existingData = null) {
+    const container = document.getElementById("scorersContainer");
     const teamAId = document.getElementById("teamASelect").value;
     const teamBId = document.getElementById("teamBSelect").value;
     
     if(!teamAId || !teamBId) {
-        alert("Please select Team A and Team B first.");
+        showToast("Please select Team A and Team B first.", "warning");
         return;
     }
     
     const teamA = adminTournamentData.teams.find(t => t.teamID === teamAId);
     const teamB = adminTournamentData.teams.find(t => t.teamID === teamBId);
+    
+    const select = document.createElement("select");
+    select.className = "scorer-select custom-select";
+    select.style.flex = "1";
     
     let playersOptions = `<option value="">Select Player...</option>`;
     
@@ -507,26 +719,50 @@ function addScorerRow(existingData = null) {
         });
         playersOptions += `</optgroup>`;
     }
-
+    select.innerHTML = playersOptions;
+    
     const div = document.createElement("div");
     div.className = "scorer-row";
     div.style.cssText = "display:flex; gap:10px; align-items:center; background:rgba(0,0,0,0.3); padding:8px; border-radius:5px;";
     
-    div.innerHTML = `
-        <select class="scorer-select" style="flex:1; padding:8px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px;">
-            ${playersOptions}
-        </select>
-        <input type="number" class="scorer-goals" min="1" value="${existingData ? existingData.goals : 1}" style="width:60px; padding:8px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); border-radius:4px; text-align:center;">
-        <button type="button" onclick="this.parentElement.remove()" style="background:var(--red); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
-    `;
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "1";
+    input.value = existingData ? existingData.goals : "1";
+    input.style.width = "60px";
+    input.style.padding = "8px";
+    input.style.borderRadius = "5px";
+    input.style.background = "rgba(0,0,0,0.5)";
+    input.style.color = "white";
+    input.style.border = "1px solid rgba(255,255,255,0.2)";
+    input.style.textAlign = "center";
+    input.className = "scorer-goals";
     
-    document.getElementById("scorersContainer").appendChild(div);
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+    delBtn.style.background = "var(--red)";
+    delBtn.style.color = "white";
+    delBtn.style.border = "none";
+    delBtn.style.padding = "8px 12px";
+    delBtn.style.borderRadius = "5px";
+    delBtn.style.cursor = "pointer";
+    delBtn.onclick = () => div.remove();
+    
+    div.appendChild(select);
+    div.appendChild(input);
+    div.appendChild(delBtn);
+    
+    container.appendChild(div);
+    
+    // Apply custom select styling
+    setupCustomSelect(select);
     
     if(existingData) {
-        const select = div.querySelector('.scorer-select');
         for(let i=0; i<select.options.length; i++) {
             if(select.options[i].value && select.options[i].value.includes(existingData.playerID)) {
                 select.selectedIndex = i;
+                select.dispatchEvent(new Event('change'));
                 break;
             }
         }

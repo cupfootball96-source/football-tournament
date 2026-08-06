@@ -63,6 +63,15 @@ async function fetchWithRetry(url, options = {}, retries = 3) {
     while (retries > 0) {
         try {
             const response = await fetch(url, options);
+            
+            // Google Apps Script sometimes returns 404 on stale redirect URLs.
+            // If that happens, clear session storage cache and retry with original URL.
+            if (response.status === 404 || response.status === 0) {
+                // Clear all cached redirect URLs
+                Object.keys(sessionStorage).forEach(k => { if (k.startsWith('nec_')) sessionStorage.removeItem(k); });
+                throw new Error("Got 404 - possible stale redirect. Cache cleared.");
+            }
+            
             if (!response.ok) throw new Error("Network response was not ok");
             
             const text = await response.text();
@@ -76,10 +85,14 @@ async function fetchWithRetry(url, options = {}, retries = 3) {
             retries--;
             console.warn(`Fetch failed. Retries left: ${retries}`, error);
             if (retries === 0) throw error;
-            await new Promise(res => setTimeout(res, (3 - retries) * 1000));
+            await new Promise(res => setTimeout(res, (3 - retries) * 1500));
         }
     }
 }
+
+// Loader stubs - commented out UI loader but keeping functions to avoid errors
+function showLoader() { /* reserved */ }
+function hideLoader() { /* reserved */ }
 
 async function forceRefreshDashboard() {
     window.adminCache = {};
@@ -91,14 +104,18 @@ async function loadDashboard(){
 
     // showLoader();
 
-    try{
+    try {
+        await Promise.all([
+            loadStats(),
+            loadPendingPlayers(),
+            loadApprovedPlayers(),
+            loadRejectedPlayers()
+        ]);
 
-    await loadStats();
-    await loadPendingPlayers();
-    await loadApprovedPlayers();
-    await loadRejectedPlayers();
-
-}
+        if (typeof initCustomSelects === "function") {
+            initCustomSelects();
+        }
+    }
 
 catch(err){
 

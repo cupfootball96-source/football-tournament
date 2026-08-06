@@ -19,6 +19,16 @@ content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
+<!-- Vercel Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  if (window.location.protocol !== 'file:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = '/_vercel/insights/script.js';
+    document.head.appendChild(script);
+  }
+</script>
 </head>
 
 <body>
@@ -443,7 +453,7 @@ Rejected Players
     <!-- MATCHES TAB -->
     <div id="matchesTab" class="tournament-tab-content" style="display:none;">
         <div style="margin-bottom: 15px; display:flex; gap: 10px;">
-            <select id="matchStageFilter" onchange="filterMatches()" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+            <select id="matchStageFilter" class="custom-select" onchange="filterMatches()" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
                 <option value="All">All Stages</option>
                 <option value="Group">Group Stage</option>
                 <option value="Quarter">Quarter-Final</option>
@@ -498,7 +508,7 @@ Rejected Players
         <form id="teamForm" style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
             <input type="hidden" id="teamIdInput">
             <input type="text" id="teamNameInput" placeholder="Team Name (Optional)" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
-            <select id="teamGroupInput" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+            <select id="teamGroupInput" class="custom-select" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
                 <option value="">Unassigned Group</option>
                 <option value="A">Group A</option>
                 <option value="B">Group B</option>
@@ -540,13 +550,13 @@ Rejected Players
             <input type="hidden" id="matchIdInput">
             
             <div style="display:flex; gap:10px;">
-                <select id="matchStageInput" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <select id="matchStageInput" class="custom-select" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
                     <option value="Group">Group Stage</option>
                     <option value="Quarter">Quarter-Final</option>
                     <option value="Semi">Semi-Final</option>
                     <option value="Final">Final</option>
                 </select>
-                <select id="matchStatusInput" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <select id="matchStatusInput" class="custom-select" onchange="toggleMatchStatusFields()" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
                     <option value="Scheduled">Scheduled</option>
                     <option value="Completed">Completed</option>
                 </select>
@@ -564,12 +574,12 @@ Rejected Players
                         <!-- Options injected by JS -->
                     </div>
                 </div>
-                <div style="width:60px;">
+                <div id="goalsContainerA" style="width:60px;">
                     <label style="color:var(--gold); font-size:12px;">Goals</label>
                     <input type="number" id="scoreAInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
                 </div>
-                <div style="font-size:20px; color:white; font-weight:bold; margin-top:15px;">-</div>
-                <div style="width:60px;">
+                <div id="goalsDivider" style="font-size:20px; color:white; font-weight:bold; margin-top:15px;">-</div>
+                <div id="goalsContainerB" style="width:60px;">
                     <label style="color:var(--gold); font-size:12px;">Goals</label>
                     <input type="number" id="scoreBInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
                 </div>
@@ -586,7 +596,7 @@ Rejected Players
                 </div>
             </div>
 
-            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+            <div id="scorersSection" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h4 style="color:var(--gold); margin:0;">Goal Scorers</h4>
                     <button type="button" onclick="addScorerRow()" style="background:var(--gold); color:#071B3B; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;"><i class="fa-solid fa-plus"></i> Add Scorer</button>
@@ -648,7 +658,31 @@ Rejected Players
         </div>
     </div>
 
+    <!-- Live Match Toggle -->
+    <div class="table-card" style="margin-bottom:30px; border: 1px solid rgba(255,50,50,0.3);">
+        <h3 style="color:#ff4444;">🔴 Live Match</h3>
+        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">When enabled, a live banner will appear on the website. Paste your YouTube live stream link below so viewers can watch.</p>
+
+        <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:15px;">
+            <label class="switch" style="position:relative; display:inline-block; width:50px; height:28px;">
+                <input type="checkbox" id="liveMatchToggle" onchange="toggleLiveMatch(this.checked)" style="opacity:0; width:0; height:0;">
+                <span class="slider round"></span>
+            </label>
+            <span id="liveMatchStatus" style="font-weight:bold; font-size:16px; color:var(--gold);">Offline</span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+            <label style="font-size:13px; color:rgba(255,255,255,0.6); display:block; margin-bottom:8px;">YouTube Live Stream URL</label>
+            <div style="display:flex; gap:10px;">
+                <input type="url" id="liveMatchUrlInput" placeholder="https://www.youtube.com/watch?v=..." style="flex:1; padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:white; font-family:'Poppins', sans-serif;">
+                <button onclick="saveLiveMatchUrl()" style="padding:10px 20px; background:var(--gold); border:none; border-radius:5px; color:#111; font-weight:bold; cursor:pointer; white-space:nowrap;">SAVE URL</button>
+            </div>
+            <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">Visitors will be redirected to this link when they click the LIVE NOW banner.</p>
+        </div>
+    </div>
+
 </div>
+
 
 <!-- ========================= -->
 <!-- PLAYER DETAILS MODAL -->

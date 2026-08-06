@@ -500,6 +500,23 @@ window.addEventListener("load", () => {
 // =========================================
 
 
+// =========================================
+// LIVE BANNER CHECK
+// =========================================
+async function checkLiveBanner() {
+    try {
+        const settings = await fetchWithCache(WEB_APP_URL + "?action=getPublicData", "nec_public_data");
+        const liveBanner = document.getElementById('globalLiveBanner');
+        if (liveBanner && settings && (settings.liveMatchActive === true || settings.liveMatchActive === "true")) {
+            liveBanner.style.display = 'flex';
+            // Always link to live.html — it handles embedding the YouTube video
+            liveBanner.href = 'live.html';
+        }
+    } catch (e) {
+        console.warn("Could not check live banner", e);
+    }
+}
+
 async function loadVerifiedPlayers() {
     const grid = document.getElementById("playerGrid");
     if (!grid) return;
@@ -608,8 +625,11 @@ async function loadTeams() {
     if (!grid) return;
 
     try {
-        const teams = await fetchWithCache(WEB_APP_URL + "?action=getTeams", "nec_teams");
-        const allPlayers = await fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players") || [];
+        const [teams, fetchedPlayers] = await Promise.all([
+            fetchWithCache(WEB_APP_URL + "?action=getTeams", "nec_teams"),
+            fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players")
+        ]);
+        const allPlayers = fetchedPlayers || [];
 
         const isDedicatedPage = window.location.pathname.includes("teams.html");
         let displayTeams = teams || [];
@@ -736,9 +756,10 @@ async function loadTeams() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadVerifiedPlayers();
-    await loadTeams();
+document.addEventListener("DOMContentLoaded", () => {
+    checkLiveBanner();
+    loadVerifiedPlayers();
+    loadTeams();
 });
 
 // =========================================

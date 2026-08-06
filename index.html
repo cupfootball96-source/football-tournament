@@ -25,6 +25,16 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
+<!-- Vercel Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  if (window.location.protocol !== 'file:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = '/_vercel/insights/script.js';
+    document.head.appendChild(script);
+  }
+</script>
 </head>
 
 <body>
@@ -67,6 +77,14 @@
         </div>
     </div>
 </header>
+
+<!-- GLOBAL LIVE BANNER -->
+<a href="live.html" id="globalLiveBanner" class="global-live-banner" style="display: none; width: 100%; background: #1a0a0a; border-bottom: 1px solid #ff0000; padding: 12px 20px; text-align: center; color: #fff; text-decoration: none; align-items: center; justify-content: center; gap: 10px; font-weight: bold; position: sticky; top: 70px; z-index: 99; overflow: hidden; letter-spacing: 1px;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,0,0,0.05) 10px, rgba(255,0,0,0.05) 20px);"></div>
+    <div style="width: 10px; height: 10px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 10px #ff0000; animation: pulse-red 1.5s infinite; position: relative; z-index: 1;"></div>
+    <span style="position: relative; z-index: 1; text-shadow: 0 0 5px rgba(255,0,0,0.5);">LIVE NOW: Watch the ongoing match stream!</span>
+    <i class="fa-solid fa-arrow-right" style="position: relative; z-index: 1;"></i>
+</a>
 
 <!-- ========================= -->
 <!-- HERO -->

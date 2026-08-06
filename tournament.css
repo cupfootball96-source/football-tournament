@@ -884,7 +884,42 @@ body {
 }
 
 /* =====================================================
-   MATCH CARD SCORERS DETAILS
+   MATCHES & SCHEDULE FILTER
+===================================================== */
+.match-filter-btn {
+    background: rgba(10, 10, 10, 0.8);
+    color: #fff;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.match-filter-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.match-filter-btn.active {
+    background: linear-gradient(135deg, #D4AF37, #AA771C);
+    color: #000;
+    border-color: #D4AF37;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Filter Logic */
+.matches-grid[data-active-filter="upcoming"] .match-card[data-match-type="result"] {
+    display: none !important;
+}
+
+.matches-grid[data-active-filter="results"] .match-card[data-match-type="upcoming"] {
+    display: none !important;
+}
+
+/* =====================================================
+   MATCH RESULTS TAB
 ===================================================== */
 .match-scorers-details {
     display: flex;
@@ -1154,12 +1189,15 @@ body {
 }
 
 .team-players-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
 }
 
 .team-player-card {
+    flex: 1 1 180px;
+    max-width: 240px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 12px;
     padding: 20px;

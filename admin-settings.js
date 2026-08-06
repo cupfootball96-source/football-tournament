@@ -9,8 +9,13 @@
 async function loadAdminSettingsData() {
 
     try {
-        const response = await fetch(WEB_APP_URL + "?action=getPublicData");
-        const data = await response.json();
+        window.adminCache = window.adminCache || {};
+        if (window.adminCache.settings) {
+            var data = window.adminCache.settings;
+        } else {
+            var data = await fetchWithRetry(WEB_APP_URL + "?action=getPublicData");
+            window.adminCache.settings = data;
+        }
         
         // Update Toggle
         const toggle = document.getElementById("tournamentLiveToggle");
@@ -36,6 +41,22 @@ async function loadAdminSettingsData() {
         const deadlineInput = document.getElementById("deadlineInput");
         if (deadlineInput && data.registrationDeadline) {
             deadlineInput.value = data.registrationDeadline;
+        }
+
+        // Update Live Match Toggle
+        const liveToggle = document.getElementById("liveMatchToggle");
+        const liveStatus = document.getElementById("liveMatchStatus");
+        if (liveToggle) {
+            const isLive = data.liveMatchActive === true || data.liveMatchActive === "true";
+            liveToggle.checked = isLive;
+            liveStatus.textContent = isLive ? "🔴 LIVE" : "Offline";
+            liveStatus.style.color = isLive ? "#ff4444" : "var(--gold)";
+        }
+
+        // Update Live Match URL
+        const liveUrlInput = document.getElementById("liveMatchUrlInput");
+        if (liveUrlInput && data.liveMatchUrl) {
+            liveUrlInput.value = data.liveMatchUrl;
         }
         
     } catch (err) {
@@ -65,6 +86,7 @@ async function toggleTournamentLive(isLive) {
         
         const data = await response.json();
         if (data.status === "success") {
+            if (window.adminCache) window.adminCache.settings = null;
             showToast("Tournament Status Updated", "success");
             statusText.textContent = isLive ? "Live" : "Coming Soon";
             statusText.style.color = isLive ? "var(--green)" : "var(--gold)";
@@ -102,7 +124,8 @@ async function toggleAutomation(isEnabled) {
         
         const data = await response.json();
         if (data.status === "success") {
-            showToast("Automation Setting Updated", "success");
+            if (window.adminCache) window.adminCache.settings = null;
+            showToast("Automation Status Updated", "success");
             statusText.textContent = isEnabled ? "Enabled" : "Disabled";
             statusText.style.color = isEnabled ? "var(--green)" : "var(--gold)";
         } else {
@@ -147,3 +170,75 @@ async function saveDeadline() {
         showToast("Update Failed", "error");
     }
 }
+
+// ======================================
+// TOGGLE LIVE MATCH
+// ======================================
+
+async function toggleLiveMatch(isLive) {
+    const statusText = document.getElementById("liveMatchStatus");
+    statusText.textContent = "Saving...";
+    statusText.style.color = "white";
+
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "saveSetting",
+                key: "liveMatchActive",
+                value: isLive
+            })
+        });
+
+        const data = await response.json();
+        if (data.status === "success") {
+            if (window.adminCache) window.adminCache.settings = null;
+            showToast(isLive ? "🔴 Match is now LIVE!" : "Match marked Offline", isLive ? "success" : "success");
+            statusText.textContent = isLive ? "🔴 LIVE" : "Offline";
+            statusText.style.color = isLive ? "#ff4444" : "var(--gold)";
+        } else {
+            throw new Error("API Error");
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Update Failed", "error");
+        document.getElementById("liveMatchToggle").checked = !isLive;
+        statusText.textContent = !isLive ? "🔴 LIVE" : "Offline";
+        statusText.style.color = !isLive ? "#ff4444" : "var(--gold)";
+    }
+}
+
+// ======================================
+// SAVE LIVE MATCH URL
+// ======================================
+
+async function saveLiveMatchUrl() {
+    const input = document.getElementById("liveMatchUrlInput");
+    if (!input || !input.value.trim()) {
+        showToast("Please enter a YouTube URL first", "error");
+        return;
+    }
+
+    try {
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "saveSetting",
+                key: "liveMatchUrl",
+                value: input.value.trim()
+            })
+        });
+
+        const data = await response.json();
+        if (data.status === "success") {
+            if (window.adminCache) window.adminCache.settings = null;
+            showToast("Live Stream URL Saved!", "success");
+        } else {
+            throw new Error("API Error");
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Failed to save URL", "error");
+    }
+}
+

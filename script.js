@@ -161,6 +161,37 @@ function calculateAge(dobString) {
     return age;
 }
 
+document.getElementById("mobile")?.addEventListener("blur", async function() {
+    let mobileStr = this.value.trim();
+    if (mobileStr.length === 10) {
+        let errSpan = document.getElementById("mobileError");
+        if (errSpan) {
+            errSpan.innerText = "Checking number...";
+            errSpan.style.color = "#888";
+            errSpan.style.display = "block";
+            
+            try {
+                let res = await fetch(scriptURL + "?action=checkMobile&mobile=" + mobileStr);
+                let check = await res.json();
+                
+                if (check.exists) {
+                    errSpan.innerText = "This mobile number is already registered.";
+                    errSpan.style.color = "#ff4444";
+                    document.getElementById("reviewBtn").disabled = true;
+                } else {
+                    errSpan.style.display = "none";
+                    document.getElementById("reviewBtn").disabled = false;
+                }
+            } catch(e) {
+                errSpan.style.display = "none";
+            }
+        }
+    } else {
+        let errSpan = document.getElementById("mobileError");
+        if(errSpan) errSpan.style.display = "none";
+    }
+});
+
 document.getElementById("dob")?.addEventListener("change",function(){
 
     let age = calculateAge(this.value);
@@ -487,8 +518,12 @@ document.addEventListener("click", async function(e) {
         showLoadingModal("Securing slot...");
         
         let loadingMessages = [
+            "Encrypting data...",
             "Uploading player photo...",
+            "Processing photo...",
             "Verifying payment...",
+            "Confirming transaction...",
+            "Generating Player ID...",
             "Finalizing details...",
             "Almost done..."
         ];
@@ -556,10 +591,49 @@ document.addEventListener("click", async function(e) {
             btn.innerHTML = "CONFIRM";
         }
         catch (error) {
-            console.log(error);
+            console.log("POST error or timeout, verifying if it succeeded anyway...", error);
+            try {
+                // If it was a CORS or redirect error, the backend might have succeeded.
+                // We check the pending players list to confirm.
+                let checkRes = await fetch(scriptURL + "?action=getPlayers");
+                let players = await checkRes.json();
+                let found = players.find(p => p.mobile === window.registrationData.mobile);
+                
+                if (found) {
+                    clearInterval(loadingInterval);
+                    hideLoadingModal();
+                    alert("✅ Registration Successful!\n\nYour Player ID: " + found.id + "\n\nStatus: Pending Verification");
+                    
+                    let formContainer = document.getElementById("registrationForm");
+                    if (formContainer) {
+                        formContainer.reset();
+                        formContainer.style.pointerEvents = "auto";
+                        formContainer.style.opacity = "1";
+                    }
+                    let selectedDivs = document.getElementsByClassName("select-selected");
+                    let selects = document.getElementsByTagName("select");
+                    for(let i=0; i<selects.length; i++) {
+                         if (selectedDivs[i] && selects[i].options && selects[i].options.length > 0) {
+                             selectedDivs[i].innerHTML = selects[i].options[0].innerHTML;
+                         }
+                    }
+                    document.getElementById("summaryModal").style.display = "none";
+                    document.body.style.overflow = "auto";
+                    let logoLink = document.querySelector(".logo");
+                    if(logoLink) logoLink.style.pointerEvents = "auto";
+                    window.registrationData = null;
+                    
+                    btn.disabled = false;
+                    btn.innerHTML = "CONFIRM";
+                    return;
+                }
+            } catch(e) {
+                console.log("Fallback check also failed", e);
+            }
+
             clearInterval(loadingInterval);
             hideLoadingModal();
-            alert("❌ Registration failed. Please try again.");
+            alert("❌ Registration failed. Please check your connection and try again.");
             
             btn.disabled = false;
             btn.innerHTML = "CONFIRM";

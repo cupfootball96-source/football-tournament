@@ -325,8 +325,10 @@ function renderMatches(matches, teams) {
         let displayStage = m.stage.toLowerCase().includes('group') ? `${m.stage} Match` : `${m.stage} Stage`;
         if (m.stage.toLowerCase() === 'final' || m.stage.toLowerCase().includes('third')) displayStage = m.stage;
 
+        let matchType = m.status === 'Completed' ? 'result' : 'upcoming';
+
         container.innerHTML += `
-            <div class="match-card" id="${matchId}">
+            <div class="match-card" id="${matchId}" data-match-type="${matchType}">
                 <div class="match-stage">${displayStage}</div>
                 <div class="match-teams" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                     
@@ -542,12 +544,36 @@ async function fetchWithCache(url, cacheKey, ttl = 5 * 60 * 1000) {
     }
 }
 
+async function checkLiveBanner() {
+    try {
+        const settings = await fetchWithCache(WEB_APP_URL + "?action=getPublicData", "nec_public_data");
+        const liveBanner = document.getElementById('globalLiveBanner');
+        if (liveBanner && settings && (settings.liveMatchActive === true || settings.liveMatchActive === "true")) {
+            liveBanner.style.display = 'flex';
+            // Always link to live.html — it handles embedding the YouTube video
+            liveBanner.href = 'live.html';
+        } else if (liveBanner) {
+            liveBanner.style.display = 'none';
+        }
+    } catch (e) {
+        console.warn("Could not check live banner status", e);
+    }
+}
+
 async function loadTournamentData() {
     try {
         showSkeletons();
-        // Fetch Settings
+        // Fetch Settings (re-use same cached call)
         const settings = await fetchWithCache(WEB_APP_URL + "?action=getPublicData", "nec_public_data");
-        
+
+        // Live Banner Logic — runs BEFORE the early return so it always shows
+        const liveBanner = document.getElementById('globalLiveBanner');
+        if (liveBanner && settings && (settings.liveMatchActive === true || settings.liveMatchActive === "true")) {
+            liveBanner.style.display = 'flex';
+            // Always link to live.html — it handles embedding the YouTube video
+            liveBanner.href = 'live.html';
+        }
+
         if (settings && settings.tournamentLive !== true) {
             document.getElementById("comingSoonOverlay").style.display = "flex";
             document.body.style.overflow = "hidden"; // Prevent scrolling
@@ -587,12 +613,12 @@ async function loadTournamentData() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('loaded'); // Fix vertical scrolling
-    await loadTournamentData();
+    loadTournamentData();
     setupTabs();
-    await initTeamPage();
-    await loadAllVerifiedPlayers();
+    initTeamPage();
+    loadAllVerifiedPlayers();
 });
 
 // Setup Tabs Logic
@@ -622,6 +648,22 @@ function setupTabs() {
             activateTab(targetId);
         });
     });
+
+    // Match Filter Buttons
+    const matchFilterBtns = document.querySelectorAll('.match-filter-btn');
+    const matchContainer = document.getElementById('matchResultsContainer');
+    
+    if (matchFilterBtns.length > 0 && matchContainer) {
+        matchFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                matchFilterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                matchContainer.setAttribute('data-active-filter', filter);
+            });
+        });
+    }
 
     // Check hash on load
     const currentHash = window.location.hash.substring(1);
@@ -663,7 +705,9 @@ async function initTeamPage() {
     
     try {
         const teams = await fetchWithCache(WEB_APP_URL + "?action=getTeams", "nec_teams");
-        globalPlayers = await fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players") || [];
+        fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players").then(res => {
+            globalPlayers = res || [];
+        }).catch(e => console.error(e));
         renderTeamsFull(teams, grid);
     } catch (e) {
         console.error("Failed to load teams for dedicated page", e);
@@ -932,37 +976,63 @@ async function loadAllVerifiedPlayers() {
             return url;
         };
 
-        players.forEach((player) => {
-            const photoUrl = getDirectImageUrl(player.photo);
-            
-            grid.innerHTML += `
-                <div class="player-card fade-up">
-                    <div class="player-photo">
-                        <img src="${photoUrl}" alt="Player" loading="lazy">
-                    </div>
-                    <div class="player-info">
-                        <h3>${player.name}</h3>
-                        <div class="player-id">${player.id}</div>
-                        <div class="player-position">${player.position}</div>
-                        <div class="player-stats">
-                            <div class="stat">
-                                <span class="label">Age</span>
-                                <span class="value">${player.age || 'N/A'}</span>
-                            </div>
-                            <div class="stat">
-                                <span class="label">Foot</span>
-                                <span class="value">${player.foot || 'N/A'}</span>
-                            </div>
-                            <div class="stat">
-                                <span class="label">Exp</span>
-                                <span class="value">${player.experience || 'N/A'}</span>
-                            </div>
+        let currentIndex = 0;
+        const BATCH_SIZE = 12;
+
+        const renderNextBatch = () => {
+            const batch = players.slice(currentIndex, currentIndex + BATCH_SIZE);
+            if (batch.length === 0) return;
+
+            let html = "";
+            batch.forEach((player) => {
+                const photoUrl = getDirectImageUrl(player.photo);
+                html += `
+                    <div class="player-card fade-up">
+                        <div class="player-photo">
+                            <img src="${photoUrl}" alt="Player" loading="lazy">
                         </div>
-                        <div class="player-status"><i class="fa-solid fa-check-circle"></i> Verified</div>
+                        <div class="player-info">
+                            <h3>${player.name}</h3>
+                            <div class="player-id">${player.id}</div>
+                            <div class="player-position">${player.position}</div>
+                            <div class="player-stats">
+                                <div class="stat">
+                                    <span class="label">Age</span>
+                                    <span class="value">${player.age || 'N/A'}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Foot</span>
+                                    <span class="value">${player.foot || 'N/A'}</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Exp</span>
+                                    <span class="value">${player.experience || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="player-status"><i class="fa-solid fa-check-circle"></i> Verified</div>
+                        </div>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+
+            grid.insertAdjacentHTML("beforeend", html);
+            currentIndex += BATCH_SIZE;
+
+            const cards = grid.querySelectorAll(".player-card");
+            if (cards.length > 0 && currentIndex < players.length) {
+                observer.observe(cards[cards.length - 1]);
+            }
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                observer.unobserve(entries[0].target);
+                renderNextBatch();
+            }
+        }, { rootMargin: "200px" });
+
+        // Initial render
+        renderNextBatch();
     } catch (error) {
         console.error("Error fetching verified players:", error);
         grid.innerHTML = '<div style="color:red;text-align:center;grid-column:1/-1;padding:20px;">Failed to load verified players.</div>';

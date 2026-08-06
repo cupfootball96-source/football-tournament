@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="custom-alert.js"></script>
 
 <meta charset="UTF-8">
 
@@ -22,6 +23,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <body>
 
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="sidebar">
 
 <div class="logo">
@@ -67,6 +69,14 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 </li>
 
+<li id="menuTournament">
+
+<i class="fa-solid fa-trophy"></i>
+
+<span>Tournament Center</span>
+
+</li>
+
 <li id="menuSettings">
 
 <i class="fa-solid fa-gear"></i>
@@ -94,12 +104,15 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <header>
 
+<div style="display:flex; align-items:center; gap:15px;">
+<div class="menu-toggle" id="mobileMenuToggle" style="display:none; cursor:pointer; font-size:24px; color:var(--gold);"><i class="fa-solid fa-bars"></i></div>
 <div>
 
 <h1>Dashboard</h1>
 
 <p>Welcome Administrator</p>
 
+</div>
 </div>
 
 <div class="admin-profile">
@@ -120,7 +133,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <div class="cards">
 
-<div class="card pending">
+<div class="card pending" onclick="document.getElementById('menuPending').click()">
 
 <div>
 
@@ -134,7 +147,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 </div>
 
-<div class="card approved">
+<div class="card approved" onclick="document.getElementById('menuApproved').click()">
 
 <div>
 
@@ -148,7 +161,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 </div>
 
-<div class="card rejected">
+<div class="card rejected" onclick="document.getElementById('menuRejected').click()">
 
 <div>
 
@@ -176,6 +189,36 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 </div>
 
+</div>
+
+<div class="detailed-stats" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-top:30px; margin-bottom:30px;">
+    <div class="card stat-box" style="padding:20px; display:block;">
+        <h4 style="margin-bottom:15px; color:var(--gold);">Position Distribution</h4>
+        <ul id="positionStats" style="list-style:none; padding:0; color:white; line-height:2;">
+            <li>Loading...</li>
+        </ul>
+    </div>
+    <div class="card stat-box" style="padding:20px; display:block;">
+        <h4 style="margin-bottom:15px; color:var(--gold);">Experience Level</h4>
+        <ul id="experienceStats" style="list-style:none; padding:0; color:white; line-height:2;">
+            <li>Loading...</li>
+        </ul>
+    </div>
+    <div class="card stat-box" style="padding:20px; display:block;">
+        <h4 style="margin-bottom:15px; color:var(--gold);">Age Demographics</h4>
+        <ul id="ageStats" style="list-style:none; padding:0; color:white; line-height:2;">
+            <li>Loading...</li>
+        </ul>
+    </div>
+</div>
+
+<div class="recent-approvals" style="margin-bottom:40px;">
+    <h3 style="margin-bottom:20px; font-size:22px;">Recent Approvals</h3>
+    <div class="card" style="display:block; padding:20px;">
+        <div id="recentApprovalsFeed" style="display:flex; flex-direction:column; gap:15px;">
+            <div style="color:white; text-align:center;">Loading...</div>
+        </div>
+    </div>
 </div>
 
 </div>
@@ -358,6 +401,256 @@ Rejected Players
 
 
 <!-- ========================= -->
+<!-- TOURNAMENT CENTER -->
+<!-- ========================= -->
+
+<div class="table-card" id="tournamentSection" style="display:none;">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h3>Tournament Center</h3>
+        <div>
+            <button class="approve-btn" onclick="openAddTeamModal()" style="padding: 10px 15px; font-size: 14px;"><i class="fa-solid fa-plus"></i> Add Team</button>
+            <button class="approve-btn" onclick="openAddMatchModal()" style="padding: 10px 15px; font-size: 14px;"><i class="fa-solid fa-plus"></i> Add Match</button>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tournament-tabs" style="display:flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+        <button class="tab-btn active" onclick="switchTournamentTab('teamsTab')" style="background:none; border:none; color:white; font-size:16px; font-weight:600; cursor:pointer; padding:5px 15px;">Teams</button>
+        <button class="tab-btn" onclick="switchTournamentTab('matchesTab')" style="background:none; border:none; color:white; font-size:16px; font-weight:600; cursor:pointer; padding:5px 15px;">Matches</button>
+        <button class="tab-btn" onclick="switchTournamentTab('scorersTab')" style="background:none; border:none; color:white; font-size:16px; font-weight:600; cursor:pointer; padding:5px 15px;">Top Scorers</button>
+    </div>
+
+    <!-- TEAMS TAB -->
+    <div id="teamsTab" class="tournament-tab-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Logo</th>
+                    <th>Team ID</th>
+                    <th>Team Name</th>
+                    <th>Group</th>
+                    <th>Players</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="teamsTableBody">
+                <tr><td colspan="6" style="text-align:center;">Loading Teams...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MATCHES TAB -->
+    <div id="matchesTab" class="tournament-tab-content" style="display:none;">
+        <div style="margin-bottom: 15px; display:flex; gap: 10px;">
+            <select id="matchStageFilter" onchange="filterMatches()" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                <option value="All">All Stages</option>
+                <option value="Group">Group Stage</option>
+                <option value="Quarter">Quarter-Final</option>
+                <option value="Semi">Semi-Final</option>
+                <option value="Final">Final</option>
+            </select>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>Stage</th>
+                    <th>Team A</th>
+                    <th>Score</th>
+                    <th>Team B</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="matchesTableBody">
+                <tr><td colspan="7" style="text-align:center;">Loading Matches...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TOP SCORERS TAB -->
+    <div id="scorersTab" class="tournament-tab-content" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player Name</th>
+                    <th>Team</th>
+                    <th>Goals</th>
+                </tr>
+            </thead>
+            <tbody id="scorersTableBody">
+                <tr><td colspan="4" style="text-align:center;">Loading Top Scorers...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- TOURNAMENT MODALS -->
+
+<!-- Add Team Modal -->
+<div class="modal" id="teamModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close" onclick="closeTeamModal()">&times;</span>
+        <h2>Add/Edit Team</h2>
+        <form id="teamForm" style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+            <input type="hidden" id="teamIdInput">
+            <input type="text" id="teamNameInput" placeholder="Team Name (Optional)" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+            <select id="teamGroupInput" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <option value="">Unassigned Group</option>
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+                <option value="C">Group C</option>
+                <option value="D">Group D</option>
+            </select>
+            
+            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:10px;">
+                <label style="color:var(--gold); font-size:14px; font-weight:bold;">Owner Details (Optional)</label>
+                <input type="text" id="ownerNameInput" placeholder="Owner Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <input type="text" id="businessNameInput" placeholder="Business Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <input type="url" id="instagramInput" placeholder="Instagram Profile URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <input type="url" id="websiteInput" placeholder="Website URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <input type="url" id="whatsappInput" placeholder="WhatsApp Link" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+            </div>
+            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
+                <label style="display:block; margin-bottom:5px; color:var(--gold); font-size:12px;">Team Logo (Max 2MB)</label>
+                <input type="file" id="teamLogoInput" accept="image/*" style="color:white; font-size:14px;">
+            </div>
+            
+            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
+                <label style="display:block; margin-bottom:5px; color:var(--gold); font-size:12px;">Select Players</label>
+                <div id="playerSelectionContainer" style="max-height: 150px; overflow-y: auto; display:flex; flex-direction:column; gap:5px; color:white; font-size:14px;">
+                    <!-- Checkboxes injected by JS -->
+                </div>
+            </div>
+
+            <button type="submit" class="approve-btn" style="padding:12px; margin-top:10px; font-weight:bold;">Save Team</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add/Edit Match Modal -->
+<div class="modal" id="matchModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close" onclick="closeMatchModal()">&times;</span>
+        <h2>Manage Match Result</h2>
+        <form id="matchForm" style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+            <input type="hidden" id="matchIdInput">
+            
+            <div style="display:flex; gap:10px;">
+                <select id="matchStageInput" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    <option value="Group">Group Stage</option>
+                    <option value="Quarter">Quarter-Final</option>
+                    <option value="Semi">Semi-Final</option>
+                    <option value="Final">Final</option>
+                </select>
+                <select id="matchStatusInput" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+                <div style="flex:1; position: relative;">
+                    <label style="color:var(--gold); font-size:12px;">Team A</label>
+                    <input type="hidden" id="teamASelect" required>
+                    <div class="custom-select-trigger" id="teamATrigger" onclick="toggleCustomDropdown('teamADropdown')">
+                        <span id="teamASelectedContent" style="display:flex; align-items:center; gap:8px;">Select Team...</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:12px; opacity:0.6;"></i>
+                    </div>
+                    <div class="custom-options" id="teamADropdown">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+                <div style="width:60px;">
+                    <label style="color:var(--gold); font-size:12px;">Goals</label>
+                    <input type="number" id="scoreAInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
+                </div>
+                <div style="font-size:20px; color:white; font-weight:bold; margin-top:15px;">-</div>
+                <div style="width:60px;">
+                    <label style="color:var(--gold); font-size:12px;">Goals</label>
+                    <input type="number" id="scoreBInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
+                </div>
+                <div style="flex:1; position: relative;">
+                    <label style="color:var(--gold); font-size:12px;">Team B</label>
+                    <input type="hidden" id="teamBSelect" required>
+                    <div class="custom-select-trigger" id="teamBTrigger" onclick="toggleCustomDropdown('teamBDropdown')">
+                        <span id="teamBSelectedContent" style="display:flex; align-items:center; gap:8px;">Select Team...</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:12px; opacity:0.6;"></i>
+                    </div>
+                    <div class="custom-options" id="teamBDropdown">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="color:var(--gold); margin:0;">Goal Scorers</h4>
+                    <button type="button" onclick="addScorerRow()" style="background:var(--gold); color:#071B3B; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;"><i class="fa-solid fa-plus"></i> Add Scorer</button>
+                </div>
+                <div id="scorersContainer" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Scorer rows injected here -->
+                </div>
+            </div>
+
+            <button type="submit" class="approve-btn" style="padding:12px; margin-top:10px; font-weight:bold;">Save Match Result</button>
+        </form>
+    </div>
+</div>
+
+</div>
+
+<!-- ========================= -->
+<!-- SETTINGS SECTION -->
+<!-- ========================= -->
+
+<div id="settingsSection" style="display:none; color:white;">
+    <h2 style="margin-bottom:20px;">System Settings</h2>
+    
+    <!-- Tournament Center Toggle -->
+    <div class="table-card" style="margin-bottom:30px;">
+        <h3>Tournament Status</h3>
+        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">Control whether the public can view the Tournament Center.</p>
+        
+        <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+            <label class="switch" style="position:relative; display:inline-block; width:50px; height:28px;">
+                <input type="checkbox" id="tournamentLiveToggle" onchange="toggleTournamentLive(this.checked)" style="opacity:0; width:0; height:0;">
+                <span class="slider round"></span>
+            </label>
+            <span id="tournamentLiveStatus" style="font-weight:bold; font-size:16px;">Coming Soon</span>
+        </div>
+    </div>
+    
+    <!-- Tournament Automation Toggle -->
+    <div class="table-card" style="margin-bottom:30px;">
+        <h3>Tournament Automation</h3>
+        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">Enable or disable automatic knockout bracket generation and match progression.</p>
+        
+        <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+            <label class="switch" style="position:relative; display:inline-block; width:50px; height:28px;">
+                <input type="checkbox" id="automationToggle" onchange="toggleAutomation(this.checked)" style="opacity:0; width:0; height:0;">
+                <span class="slider round"></span>
+            </label>
+            <span id="automationStatus" style="font-weight:bold; font-size:16px;">Disabled</span>
+        </div>
+    </div>
+    <!-- Registration Deadline -->
+    <div class="table-card" style="margin-bottom:30px;">
+        <h3>Registration Deadline</h3>
+        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">Set the final date and time for new player registrations. If 64 players are approved, registration will also close automatically.</p>
+        
+        <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+            <input type="text" id="deadlineInput" placeholder="e.g. August 10, 2026 23:59:59" style="flex:1; padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:white; font-family:'Poppins', sans-serif;">
+            <button onclick="saveDeadline()" style="padding:10px 20px; background:var(--gold); border:none; border-radius:5px; color:#111; font-weight:bold; cursor:pointer;">SAVE</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= -->
 <!-- PLAYER DETAILS MODAL -->
 <!-- ========================= -->
 
@@ -415,17 +708,7 @@ id="previewImage">
 </div>
 
 
-<!-- ========================= -->
-<!-- LOADER -->
-<!-- ========================= -->
 
-<div id="loader">
-
-<div class="spinner">
-
-</div>
-
-</div>
 
 
 <!-- ========================= -->
@@ -443,8 +726,9 @@ Action Completed
 </div>
 
 <script src="dashboard.js"></script>
+<script src="admin-tournament.js"></script>
+<script src="admin-settings.js"></script>
 <script src="menu.js"></script>
-
 </body>
 
 </html>

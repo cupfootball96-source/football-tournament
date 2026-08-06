@@ -3,35 +3,6 @@
 // ===============================
 
 // =====================================
-// CUSTOM ALERT MODAL OVERRIDE
-// =====================================
-function showCustomAlert(message) {
-    let modal = document.getElementById("customAlertModal");
-    if (!modal) {
-        modal = document.createElement("div");
-        modal.id = "customAlertModal";
-        modal.innerHTML = `
-            <div class="custom-alert-box">
-                <p id="customAlertMessage"></p>
-                <button type="button" id="customAlertBtn">OK</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        document.getElementById("customAlertBtn").addEventListener("click", () => {
-            modal.style.display = "none";
-        });
-    }
-
-    document.getElementById("customAlertMessage").innerHTML = message.replace(/\n/g, "<br>");
-    modal.style.display = "flex";
-}
-
-window.alert = function(msg) {
-    showCustomAlert(msg);
-};
-
-// =====================================
 // CUSTOM DROPDOWN LOGIC
 // =====================================
 function initCustomSelect() {
@@ -141,27 +112,36 @@ const scriptURL =
 // REGISTRATION DEADLINE
 // =====================================
 
-const registrationDeadline = new Date("August 5, 2026 23:59:59").getTime();
+let dynamicDeadline = new Date("August 10, 2026 23:59:59").getTime();
+let isTournamentFull = false;
 
+// Fetch live settings on load to make checks blazing fast
+window.addEventListener("DOMContentLoaded", async () => {
+    try {
+        let res = await fetch(scriptURL + "?action=getPublicData");
+        let data = await res.json();
+        if (data.registrationDeadline) {
+            dynamicDeadline = new Date(data.registrationDeadline).getTime();
+        }
+        if (data.approvedCount >= 64) {
+            isTournamentFull = true;
+        }
+    } catch(err) {
+        console.error("Failed to load live settings", err);
+    }
+});
 
 function checkRegistrationDeadline(){
-
-    let today = new Date().getTime();
-
-
-    if(today > registrationDeadline){
-
-        alert(
-        "❌ Registration Closed.\n\nLast date was 5 August 2026."
-        );
-
+    if (isTournamentFull) {
+        alert("❌ No entry available. Players list complete.");
         return false;
-
     }
-
-
+    let today = new Date().getTime();
+    if(today > dynamicDeadline){
+        alert("❌ Registration Closed.\n\nThe deadline has passed.");
+        return false;
+    }
     return true;
-
 }
 
 

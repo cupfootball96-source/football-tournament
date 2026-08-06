@@ -218,22 +218,22 @@ navLinks.forEach(link=>{
 
     link.addEventListener("click",function(e){
 
-        e.preventDefault();
+        const href = this.getAttribute("href");
 
-        const target = document.querySelector(
+        if (href.startsWith("#")) {
+            e.preventDefault();
 
-            this.getAttribute("href")
+            const target = document.querySelector(href);
 
-        );
+            if(target){
 
-        if(target){
+                target.scrollIntoView({
 
-            target.scrollIntoView({
+                    behavior:"smooth"
 
-                behavior:"smooth"
+                });
 
-            });
-
+            }
         }
 
     });
@@ -415,27 +415,70 @@ img.loading="lazy";
 });
 
 
+// =========================================
+// PUBLIC DATA (SETTINGS & SPONSORS)
+// =========================================
 
+// =========================================
+// FETCH WITH CACHE HELPER
+// =========================================
+async function fetchWithCache(url, cacheKey, ttl = 300000) {
+    const cachedData = localStorage.getItem(cacheKey);
+    const cacheTime = localStorage.getItem(cacheKey + '_time');
+    const now = new Date().getTime();
 
+    if (cachedData && cacheTime && now - parseInt(cacheTime) < ttl) {
+        try {
+            return JSON.parse(cachedData);
+        } catch(e) {
+            localStorage.removeItem(cacheKey);
+        }
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const text = await response.text();
+    try {
+        const data = JSON.parse(text);
+        localStorage.setItem(cacheKey, text);
+        localStorage.setItem(cacheKey + '_time', now.toString());
+        return data;
+    } catch(e) {
+        console.error("Failed to parse JSON for", cacheKey, ". Response starts with:", text.substring(0, 50));
+        throw e;
+    }
+}
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
 
 // =========================================
 // PAGE LOADED
 // =========================================
 
-window.addEventListener("load", () => {
+let isWindowLoaded = false;
 
-    const loader = document.getElementById("loader");
-
-    if (loader) {
-        loader.style.display = "none";
-        // ya loader.remove();
+function checkAndHideLoader() {
+    if (isWindowLoaded) {
+        const loader = document.getElementById("loader");
+        if (loader) {
+            loader.style.opacity = "0";
+            setTimeout(() => {
+                loader.style.display = "none";
+            }, 500);
+        }
+        document.body.classList.add("loaded");
+        console.log("NEW ERA CUP 2026 Loaded Successfully");
     }
+}
 
-    document.body.classList.add("loaded");
-
-    console.log("NEW ERA CUP 2026 Loaded Successfully");
-
+window.addEventListener("load", () => {
+    isWindowLoaded = true;
+    checkAndHideLoader();
 });
+
 
 
 
@@ -443,17 +486,43 @@ window.addEventListener("load", () => {
 // FETCH VERIFIED PLAYERS (HOMEPAGE)
 // =========================================
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz42gF4EyG0u82ZUZB6ECxLRMLzLeOce1lSFK6fYM5l-ZUnai-8IwDf0mqRqTL0NT5gDA/exec";
 
 async function loadVerifiedPlayers() {
     const grid = document.getElementById("playerGrid");
     if (!grid) return;
 
-    grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;padding:20px;">Loading Verified Players...</div>';
+    let skeletons = '';
+    for (let i = 0; i < 4; i++) {
+        skeletons += `
+            <div class="skeleton-card" style="padding:0; overflow:hidden;">
+                <div class="skeleton skeleton-avatar" style="width: 100%; height: 250px; border-radius: 0;"></div>
+                <div style="padding: 20px; text-align: center;">
+                    <div class="skeleton skeleton-title" style="margin: 0 auto; width: 60%; margin-bottom: 5px;"></div>
+                    <div class="skeleton skeleton-text" style="margin: 0 auto; width: 40%; margin-bottom: 5px;"></div>
+                    <div class="skeleton skeleton-text" style="margin: 0 auto; width: 50%; margin-bottom: 15px;"></div>
+                    <div style="display:flex; justify-content:center; gap:20px; margin-top:15px; border-top:1px solid rgba(255,255,255,.1); padding-top:15px;">
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <div class="skeleton skeleton-text" style="width:30px; margin-bottom:5px;"></div>
+                            <div class="skeleton skeleton-text" style="width:20px;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <div class="skeleton skeleton-text" style="width:30px; margin-bottom:5px;"></div>
+                            <div class="skeleton skeleton-text" style="width:40px;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <div class="skeleton skeleton-text" style="width:30px; margin-bottom:5px;"></div>
+                            <div class="skeleton skeleton-text" style="width:50px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    grid.innerHTML = skeletons;
 
     try {
-        const response = await fetch(WEB_APP_URL + "?action=getApprovedPlayers");
-        const players = await response.json();
+        const players = await fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players");
+
 
         grid.innerHTML = "";
 
@@ -517,8 +586,146 @@ async function loadVerifiedPlayers() {
     }
 }
 
+// =========================================
+// FETCH TEAMS (HOMEPAGE)
+// =========================================
+
+async function loadTeams() {
+    const grid = document.getElementById("teamGrid");
+    if (!grid) return;
+
+    try {
+        const teams = await fetchWithCache(WEB_APP_URL + "?action=getTeams", "nec_teams");
+        const allPlayers = await fetchWithCache(WEB_APP_URL + "?action=getApprovedPlayers", "nec_approved_players") || [];
+
+        const isDedicatedPage = window.location.pathname.includes("teams.html");
+        let displayTeams = teams || [];
+        
+        if (!isDedicatedPage) {
+            displayTeams = [...displayTeams].sort(() => 0.5 - Math.random());
+        }
+        
+        const maxDisplay = 16;
+        const numPlaceholders = Math.max(0, maxDisplay - displayTeams.length);
+        let html = "";
+
+        const getDirectImageUrl = (url) => {
+            if (!url) return '';
+            if (url.includes('/d/')) {
+                const idMatch = url.match(/\/d\/([^\/]+)/);
+                if (idMatch && idMatch[1]) {
+                    return "https://lh3.googleusercontent.com/d/" + idMatch[1] + "=w600?authuser=0";
+                }
+            }
+            if (url.includes('id=')) {
+                const idMatch = url.match(/id=([^&]+)/);
+                if (idMatch && idMatch[1]) {
+                    return "https://lh3.googleusercontent.com/d/" + idMatch[1] + "=w600?authuser=0";
+                }
+            }
+            return url;
+        };
+
+        if (displayTeams.length > 0) {
+            displayTeams.forEach((team, i) => {
+                const logoUrl = getDirectImageUrl(team.logoURL);
+                const logoHtml = logoUrl 
+                    ? `<img src="${logoUrl}" alt="${team.teamName} Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                    : `<i class="fa-solid fa-shield-halved"></i>`;
+                
+                let ownerName = (team.owner && team.owner.ownerName) ? team.owner.ownerName : "TBA";
+                let businessName = (team.owner && team.owner.businessName) ? team.owner.businessName : "TBA";
+                let frontOwnerStatus = (ownerName !== "TBA") ? `Owner: ${ownerName}` : "Owner: Coming Soon";
+                
+                let avatarsHtml = "";
+                if (team.players && team.players.length > 0) {
+                    let count = 0;
+                    for (let p of team.players) {
+                        if (count >= 3) break;
+                        let pName = typeof p === 'string' ? p : p.name;
+                        let fp = allPlayers.find(x => x.name === pName);
+                        let pPhoto = fp ? getDirectImageUrl(fp.photo) : "";
+                        let content = pPhoto ? `<img src="${pPhoto}">` : `<i class="fa-solid fa-user"></i>`;
+                        avatarsHtml += `<div class="mini-avatar">${content}</div>`;
+                        count++;
+                    }
+                    if (team.players.length > 3) {
+                        avatarsHtml += `<div class="mini-avatar" style="font-weight:bold; font-size:12px;">+${team.players.length - 3}</div>`;
+                    }
+                } else {
+                    avatarsHtml = `<div style="color:#aaa;font-size:13px;">Auction Pending</div>`;
+                }
+
+                html += `
+                    <div class="team-card" onclick="this.classList.toggle('flipped');">
+                        <div class="card-inner">
+                            <div class="card-front">
+                                <div class="team-logo-placeholder">
+                                    ${logoHtml}
+                                </div>
+                                <h3>${team.teamName || 'Team ' + (i + 1)}</h3>
+                                <span class="owner-status">${frontOwnerStatus}</span>
+                            </div>
+                            <div class="card-back">
+                                <h3>${team.teamName || 'Team ' + (i + 1)}</h3>
+                                <div class="coming-soon-details">
+                                    <div class="detail-row">
+                                        <i class="fa-solid fa-user-tie"></i>
+                                        <span>${ownerName}</span>
+                                    </div>
+                                    <div class="mini-avatars-container">
+                                        ${avatarsHtml}
+                                    </div>
+                                    <a href="teams.html" class="view-roster-btn">View Full Roster</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        for (let i = 0; i < numPlaceholders; i++) {
+            const index = displayTeams.length + i + 1;
+            html += `
+                <div class="team-card" onclick="this.classList.toggle('flipped');">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="team-logo-placeholder">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <h3>Team ${index}</h3>
+                            <span class="owner-status">Owner: Coming Soon</span>
+                        </div>
+                        <div class="card-back">
+                            <h3>Team ${index}</h3>
+                            <div class="coming-soon-details">
+                                <div class="detail-row">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <span>Owner: TBA</span>
+                                </div>
+                                <div class="mini-avatars-container">
+                                    <div style="color:#aaa;font-size:13px;">Auction Pending</div>
+                                </div>
+                                <a href="teams.html" class="view-roster-btn" style="opacity:0.5;pointer-events:none;">View Full Roster</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        grid.innerHTML = html;
+
+    } catch (error) {
+        console.error(error);
+        grid.innerHTML = '<div style="color:red;text-align:center;grid-column:1/-1;padding:20px;">Failed to load teams. Please try again later.</div>';
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     loadVerifiedPlayers();
+    loadTeams();
 });
 
 // =========================================

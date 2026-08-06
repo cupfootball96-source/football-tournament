@@ -24,6 +24,10 @@ html{
 body{
     background:#050505;
     color:#ffffff;
+    overflow:hidden;
+}
+body.loaded{
+    overflow-y:auto;
     overflow-x:hidden;
 }
 
@@ -2637,16 +2641,16 @@ footer{
 }
 
 /* =====================================================
-   SPONSORS SECTION
+   TEAMS SECTION
 ===================================================== */
-.sponsors {
-    padding: 30px 0;
+.teams {
+    padding: 60px 0;
     background: linear-gradient(to bottom, #050505, #080808);
     position: relative;
     overflow: hidden;
 }
 
-.sponsors::after {
+.teams::after {
     content: "";
     position: absolute;
     bottom: -150px;
@@ -2658,76 +2662,141 @@ footer{
     pointer-events: none;
 }
 
-.sponsor-coming-soon {
-    max-width: 750px;
-    margin: 40px auto 0;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(255, 215, 0, 0.3);
-    border-radius: 30px;
-    padding: 60px 40px;
-    text-align: center;
-    position: relative;
-    backdrop-filter: blur(15px);
-}
-
-.coming-soon-content {
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
     position: relative;
     z-index: 2;
 }
 
-.coming-soon-content .icon-wrap {
-    width: 90px;
-    height: 90px;
+.team-card {
+    background-color: transparent;
+    height: 350px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+.team-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 15, 25, 0.95);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.card-front {
+    color: white;
+}
+
+.card-front .team-logo-placeholder {
+    width: 80px;
+    height: 80px;
     background: rgba(255, 215, 0, 0.1);
     border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    margin: 0 auto 25px;
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
 }
 
-.coming-soon-content .icon-wrap i {
-    font-size: 40px;
+.card-front .team-logo-placeholder i {
+    font-size: 35px;
     color: var(--gold);
 }
 
-.coming-soon-content h3 {
-    font-size: 32px;
+.card-front h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
     color: #fff;
-    margin-bottom: 15px;
     letter-spacing: 1px;
 }
 
-.coming-soon-content p {
+.card-front .owner-status {
     color: #a0a0a0;
-    font-size: 17px;
-    line-height: 1.8;
-    margin-bottom: 35px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-.pulse-loader {
+.card-back {
+    color: white;
+    transform: rotateY(180deg);
+    background: rgba(25, 20, 0, 0.8);
+    border-color: var(--gold);
+}
+
+.card-back h3 {
+    color: var(--gold);
+    font-size: 22px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+.coming-soon-details {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+.detail-row i {
+    color: var(--gold);
+    width: 20px;
+    text-align: center;
+}
+
+.social-links-placeholder {
+    margin-top: 20px;
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
+    width: 100%;
 }
 
-.pulse-loader span {
-    width: 12px;
-    height: 12px;
-    background: var(--gold);
-    border-radius: 50%;
-    animation: pulseLoad 1.5s infinite ease-in-out both;
+.social-links-placeholder i {
+    font-size: 18px;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    transition: color 0.3s;
 }
 
-.pulse-loader span:nth-child(1) { animation-delay: -0.32s; }
-.pulse-loader span:nth-child(2) { animation-delay: -0.16s; }
-.pulse-loader span:nth-child(3) { animation-delay: 0s; }
-
-@keyframes pulseLoad {
-    0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-    40% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+.social-links-placeholder i:hover {
+    color: var(--gold);
 }
 
 @media(max-width:768px){
@@ -2738,10 +2807,176 @@ footer{
     .highlight-card {
         padding: 35px 25px;
     }
-    .sponsor-coming-soon {
-        padding: 40px 20px;
+    .team-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
     }
-    .coming-soon-content h3 {
-        font-size: 24px;
+    .team-card {
+        height: 280px;
+    }
+    .card-front h3 {
+        font-size: 18px;
+    }
+    .card-front .team-logo-placeholder {
+        width: 60px;
+        height: 60px;
+    }
+    .card-front .team-logo-placeholder i {
+        font-size: 25px;
+    }
+    .card-back h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    .detail-row {
+        font-size: 12px;
     }
 }
+
+/* =====================================================
+   SKELETON LOADERS
+===================================================== */
+.skeleton {
+    background: linear-gradient(90deg, rgba(30, 30, 30, 0.9) 25%, rgba(60, 60, 60, 0.9) 50%, rgba(30, 30, 30, 0.9) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+    height: 14px;
+    width: 80%;
+    margin: 5px 0;
+}
+
+.skeleton-title {
+    height: 24px;
+    width: 50%;
+    margin-bottom: 15px;
+}
+
+.skeleton-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+}
+
+.skeleton-card {
+    background: rgba(15, 15, 15, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+/* Homepage Team Carousel */
+.team-carousel {
+    display: flex !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    gap: 30px;
+    padding: 20px 0 40px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.team-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.team-carousel .team-card {
+    flex: 0 0 320px !important;
+    scroll-snap-align: center;
+}
+
+.team-carousel .skeleton-card {
+    flex: 0 0 320px !important;
+}
+
+/* Glassmorphism for card back on homepage */
+.team-carousel .card-back {
+    background: rgba(15, 15, 25, 0.95) !important;
+    /* Removed backdrop-filter to fix 3D flipping bug */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 25px;
+}
+
+.team-carousel .coming-soon-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.mini-avatars-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+
+.mini-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    background: #222;
+    margin-left: -10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: var(--gold);
+    overflow: hidden;
+}
+
+.mini-avatar:first-child {
+    margin-left: 0;
+}
+
+.mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.view-roster-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 15px;
+    text-align: center;
+    background: linear-gradient(90deg, #D4AF37, #FFC107);
+    color: var(--bg-dark);
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+.view-roster-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+@media (max-width: 768px) {
+    .team-carousel .team-card {
+        flex: 0 0 85vw !important;
+    }
+}
+

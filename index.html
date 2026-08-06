@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="custom-alert.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,41 +50,22 @@
 <!-- ========================= -->
 
 <header id="header">
-
     <div class="container">
-
         <a href="index.html" class="logo">
-
             <img src="assets/logo.png" alt="Logo">
-
             <span>NEW ERA CUP</span>
-
         </a>
-
         <nav id="navMenu">
-
-            <a href="#home">Home</a>
-
-            <a href="#about">About</a>
-
-            <a href="#journey">Journey</a>
-
-            <a href="#players">Players</a>
-
-            <a href="#rules">Rules</a>
-
-            <a href="#contact">Contact</a>
-
+            <a href="index.html#home">Home</a>
+            <a href="index.html#about">About</a>
+            <a href="tournament.html">Tournament Center</a>
+            <a href="index.html#rules">Rules</a>
+            <a href="index.html#contact">Contact</a>
         </nav>
-
         <div class="menu-btn" id="menuBtn">
-
             <i class="fa-solid fa-bars"></i>
-
         </div>
-
     </div>
-
 </header>
 
 <!-- ========================= -->
@@ -437,7 +419,7 @@
         </div>
 
         <div class="view-all-container" style="text-align: center; margin-top: 50px;">
-            <a href="verified-players.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; font-size: 16px; padding: 15px 35px;">
+            <a href="tournament.html#tab-players" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; font-size: 16px; padding: 15px 35px;">
                 Show All Players <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
@@ -566,40 +548,54 @@
 </section>
 
 <!-- ========================= -->
-<!-- SPONSORS -->
+<!-- TEAMS -->
 <!-- ========================= -->
 
-<section class="sponsors">
+<section class="teams" id="teams">
 
     <div class="container">
 
         <div class="section-title">
 
-            <h2>Partners & Sponsors</h2>
+            <h2>Professional Teams</h2>
 
-            <p>Supporting The Future Of Football</p>
+            <p>Meet The Elite Squads of NEW ERA CUP 2026</p>
 
         </div>
 
-        <div class="sponsor-coming-soon">
-            <div class="coming-soon-content">
-                <div class="icon-wrap">
-                    <i class="fa-solid fa-handshake"></i>
-                </div>
-                <h3>Will Be Updated Shortly</h3>
-                <p>We are currently onboarding our amazing partners and sponsors.<br>Stay tuned for exciting announcements!</p>
-                
-                <div class="pulse-loader">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+        <div class="team-grid team-carousel" id="teamGrid">
+            <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
             </div>
+            <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+            </div>
+            <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+            </div>
+            <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+            </div>
+        </div>
+
+        <div class="view-all-container fade-up" style="text-align: center; margin-top: 50px;">
+            <a href="tournament.html#tab-teams" class="btn-primary" style="display: inline-flex; align-items: center; gap: 10px; font-size: 16px; padding: 15px 35px;">
+                View All Teams <i class="fa-solid fa-arrow-right"></i>
+            </a>
         </div>
 
     </div>
 
 </section>
+
 <!-- ========================= -->
 <!-- PREMIUM RULES -->
 <!-- ========================= -->

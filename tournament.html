@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="custom-alert.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Bracket | NEW ERA CUP 2026</title>
+    <link rel="icon" type="jpg/png" href="assets/logo.png">
+    <meta name="description" content="Tournament Bracket and Schedule - NEW ERA CUP 2026">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="tournament.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        .page-header {
+            padding: 150px 0 10px;
+            text-align: center;
+            background: linear-gradient(rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.9)), url("assets/stadium.png");
+            background-size: cover;
+            background-position: center;
+        }
+        .page-header h1 {
+            color: #fff;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        .page-header p {
+            color: var(--gold);
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========================= -->
+<!-- COMING SOON OVERLAY -->
+<!-- ========================= -->
+<div id="comingSoonOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#071B3B; z-index:99999; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <img src="assets/logo.png" alt="Logo" style="width:120px; margin-bottom:20px;">
+    <h2 style="color:white; font-size:32px;">Tournament Center</h2>
+    <p style="color:var(--gold); margin-top:10px; font-size:18px;">Coming Soon</p>
+    <a href="index.html" style="margin-top:30px; padding:12px 25px; background:linear-gradient(90deg, #D4AF37, #FFC107); color:#071B3B; text-decoration:none; border-radius:30px; font-weight:700;">Return Home</a>
+</div>
+
+<!-- ========================= -->
+<!-- HEADER -->
+<header id="header" style="background: rgba(10,10,10,0.95); border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="assets/logo.png" alt="Logo">
+            <span>NEW ERA CUP</span>
+        </a>
+        <nav id="navMenu">
+            <a href="index.html#home">Home</a>
+            <a href="index.html#about">About</a>
+            <a href="tournament.html" class="active">Tournament Center</a>
+            <a href="index.html#rules">Rules</a>
+            <a href="index.html#contact">Contact</a>
+        </nav>
+        <div class="menu-btn" id="menuBtn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </div>
+</header>
+
+<!-- PAGE HEADER -->
+<section class="page-header">
+    <div class="container">
+        <h1>Tournament Bracket</h1>
+        <p>Road to the Championship</p>
+    </div>
+</section>
+
+<!-- TOURNAMENT NAVIGATION TABS -->
+<div class="tournament-tabs-container">
+    <div class="container">
+        <div class="tournament-tabs">
+            <button class="tab-btn active" data-tab="tab-overview"><i class="fa-solid fa-chart-line"></i> Overview</button>
+            <button class="tab-btn" data-tab="tab-teams"><i class="fa-solid fa-shield-halved"></i> Teams</button>
+            <button class="tab-btn" data-tab="tab-players"><i class="fa-solid fa-users"></i> Players</button>
+            <button class="tab-btn" data-tab="tab-standings"><i class="fa-solid fa-table-list"></i> Standings</button>
+            <button class="tab-btn" data-tab="tab-matches"><i class="fa-solid fa-calendar-days"></i> Match Results</button>
+            <button class="tab-btn" data-tab="tab-bracket"><i class="fa-solid fa-sitemap"></i> Knockout</button>
+            <button class="tab-btn" data-tab="tab-stats"><i class="fa-solid fa-star"></i> Top Scorers</button>
+        </div>
+    </div>
+</div>
+
+<div class="tab-content-container">
+
+    <!-- OVERVIEW TAB -->
+    <div id="tab-overview" class="tab-pane active">
+        <section class="overview-section" style="padding: 40px 0;">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Tournament Dashboard</h2>
+                    <p>Quick Look</p>
+                </div>
+                <div style="text-align:center; color:#ccc; padding: 40px; background: rgba(15,15,15,0.9); border: 1px solid rgba(255,215,0,0.2); border-radius: 10px;">
+                    <i class="fa-solid fa-trophy" style="font-size:40px; color:var(--gold); margin-bottom:15px;"></i>
+                    <h3 style="color:white; font-size:24px; margin-bottom:10px;">Welcome to the Tournament Center</h3>
+                    <p>Select a tab above to view Standings, Matches, Knockout Brackets, and Top Scorers.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- TEAMS TAB -->
+    <div id="tab-teams" class="tab-pane">
+        <section class="teams" id="teams" style="padding: 40px 0;">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Professional Teams</h2>
+                    <p>Meet The Elite Squads of NEW ERA CUP 2026</p>
+                </div>
+                <div class="team-grid" id="teamGrid">
+                    <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                        <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                        <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+                    </div>
+                    <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                        <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                        <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+                    </div>
+                    <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                        <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                        <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+                    </div>
+                    <div class="skeleton-card" style="padding:0; overflow:hidden; height:280px; align-items:center; justify-content:center;">
+                        <div class="skeleton skeleton-avatar" style="width:80px; height:80px; margin-bottom:20px;"></div>
+                        <div class="skeleton skeleton-title" style="margin:0; margin-bottom:10px;"></div>
+                        <div class="skeleton skeleton-text" style="width:40%; margin:0;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- PLAYERS TAB -->
+    <div id="tab-players" class="tab-pane">
+        <section class="players" id="players" style="padding: 40px 0;">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Verified Players</h2>
+                    <p>Officially Approved Participants For 2026</p>
+                </div>
+                <div class="player-grid" id="allPlayerGrid">
+                    <!-- Skeletons will be injected by JS -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- STANDINGS TAB -->
+    <div id="tab-standings" class="tab-pane">
+
+<!-- GROUP STAGE -->
+<section class="group-stage" style="padding: 60px 0;">
+    <div class="container">
+        <div class="section-title">
+            <h2>Group Stage</h2>
+            <p>Standings & Results</p>
+        </div>
+        <div class="groups-grid">
+            <!-- Group A -->
+            <div class="group-card">
+                <div class="group-header">Group A</div>
+                <table class="group-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th title="Played">P</th>
+                            <th title="Won">W</th>
+                            <th title="Drawn">D</th>
+                            <th title="Lost">L</th>
+                            <th title="Goals For">GF</th>
+                            <th title="Goals Against">GA</th>
+                            <th title="Goal Difference">GD</th>
+                            <th title="Points">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupA-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Group B -->
+            <div class="group-card">
+                <div class="group-header">Group B</div>
+                <table class="group-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th title="Played">P</th>
+                            <th title="Won">W</th>
+                            <th title="Drawn">D</th>
+                            <th title="Lost">L</th>
+                            <th title="Goals For">GF</th>
+                            <th title="Goals Against">GA</th>
+                            <th title="Goal Difference">GD</th>
+                            <th title="Points">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupB-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Group C -->
+            <div class="group-card">
+                <div class="group-header">Group C</div>
+                <table class="group-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th title="Played">P</th>
+                            <th title="Won">W</th>
+                            <th title="Drawn">D</th>
+                            <th title="Lost">L</th>
+                            <th title="Goals For">GF</th>
+                            <th title="Goals Against">GA</th>
+                            <th title="Goal Difference">GD</th>
+                            <th title="Points">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupC-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Group D -->
+            <div class="group-card">
+                <div class="group-header">Group D</div>
+                <table class="group-table">
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th title="Played">P</th>
+                            <th title="Won">W</th>
+                            <th title="Drawn">D</th>
+                            <th title="Lost">L</th>
+                            <th title="Goals For">GF</th>
+                            <th title="Goals Against">GA</th>
+                            <th title="Goal Difference">GD</th>
+                            <th title="Points">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupD-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    </div>
+
+    <!-- MATCH RESULTS TAB -->
+    <div id="tab-matches" class="tab-pane">
+        <section class="matches-section" style="padding: 40px 0;">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Match Results</h2>
+                    <p>Scores & Schedule</p>
+                </div>
+                <div id="matchResultsContainer" class="matches-grid">
+                    <div style="color:white;text-align:center;">Loading matches...</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- TOP SCORERS TAB -->
+    <div id="tab-stats" class="tab-pane">
+
+<!-- TOP SCORERS -->
+<section class="top-scorers" style="padding: 20px 0 60px;">
+    <div class="container">
+        <div class="section-title">
+            <h2>Top Goalscorers</h2>
+            <p>Golden Boot Race</p>
+        </div>
+        <div class="scorers-container" id="scorersContainer">
+            <!-- Populated by JS -->
+            <div style="color:white;text-align:center;">Loading stats...</div>
+        </div>
+    </div>
+</section>
+
+
+    </div>
+
+    <!-- KNOCKOUT BRACKET TAB -->
+    <div id="tab-bracket" class="tab-pane">
+
+<!-- KNOCKOUT BRACKET -->
+<section class="knockout-stage" style="padding: 20px 0 80px;">
+    <div class="container">
+        <div class="section-title">
+            <h2>Knockout Stage</h2>
+            <p>Quarter-Finals to Final</p>
+        </div>
+        
+        <div class="bracket-wrapper">
+            <div class="bracket-container">
+                <!-- Left Side (Quarter-Finals) -->
+                <div class="bracket-column left-qf">
+                    <div class="bracket-match" id="bracket-MATCH-QF1">
+                        <div class="match-title">Quarter-Final 1</div>
+                        <div class="team"><span class="team-name team-a-name">Winner Grp A</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp B</span><span class="score team-b-score">-</span></div>
+                    </div>
+                    <div class="bracket-match" id="bracket-MATCH-QF2">
+                        <div class="match-title">Quarter-Final 2</div>
+                        <div class="team"><span class="team-name team-a-name">Winner Grp C</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp D</span><span class="score team-b-score">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Left Side (Semi-Finals) -->
+                <div class="bracket-column left-sf">
+                    <div class="bracket-match" id="bracket-MATCH-SF1">
+                        <div class="match-title">Semi-Final 1</div>
+                        <div class="team"><span class="team-name team-a-name">Winner QF 1</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Winner QF 2</span><span class="score team-b-score">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Center (Final) -->
+                <div class="bracket-column center-final">
+                    <div class="trophy-icon"><i class="fa-solid fa-trophy"></i></div>
+                    <div class="bracket-match final-match" id="bracket-MATCH-F1">
+                        <div class="match-title">GRAND FINAL</div>
+                        <div class="team"><span class="team-name team-a-name">Winner SF 1</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Winner SF 2</span><span class="score team-b-score">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Right Side (Semi-Finals) -->
+                <div class="bracket-column right-sf">
+                    <div class="bracket-match" id="bracket-MATCH-SF2">
+                        <div class="match-title">Semi-Final 2</div>
+                        <div class="team"><span class="team-name team-a-name">Winner QF 3</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Winner QF 4</span><span class="score team-b-score">-</span></div>
+                    </div>
+                </div>
+
+                <!-- Right Side (Quarter-Finals) -->
+                <div class="bracket-column right-qf">
+                    <div class="bracket-match" id="bracket-MATCH-QF3">
+                        <div class="match-title">Quarter-Final 3</div>
+                        <div class="team"><span class="team-name team-a-name">Winner Grp B</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp A</span><span class="score team-b-score">-</span></div>
+                    </div>
+                    <div class="bracket-match" id="bracket-MATCH-QF4">
+                        <div class="match-title">Quarter-Final 4</div>
+                        <div class="team"><span class="team-name team-a-name">Winner Grp D</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp C</span><span class="score team-b-score">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+    </div>
+</div> <!-- END TAB CONTENT CONTAINER -->
+
+<!-- FOOTER -->
+
+<footer>
+    <div class="container footer-container">
+        <div class="footer-logo">
+            <img src="assets/logo.png" alt="Logo">
+            <h2>NEW ERA CUP 2026</h2>
+        </div>
+        <div class="footer-links">
+            <h3>Quick Links</h3>
+            <a href="index.html#home">Home</a>
+            <a href="index.html#about">About</a>
+            <a href="index.html#rules">Rules</a>
+            <a href="index.html#contact">Contact</a>
+        </div>
+        <div class="footer-social">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+                <a href="javascript:void(0)"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="javascript:void(0)"><i class="fa-brands fa-instagram"></i></a>
+                <a href="javascript:void(0)"><i class="fa-brands fa-youtube"></i></a>
+                <a href="javascript:void(0)"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 NEW ERA CUP. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const navMenu = document.getElementById('navMenu');
+
+    if (menuBtn && navMenu) {
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+</script>
+
+<script src="tournament.js"></script>
+
+</body>
+</html>

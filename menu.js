@@ -10,6 +10,7 @@ const dashboardBtn = document.getElementById("menuDashboard");
 const pendingBtn = document.getElementById("menuPending");
 const approvedBtn = document.getElementById("menuApproved");
 const rejectedBtn = document.getElementById("menuRejected");
+const tournamentBtn = document.getElementById("menuTournament");
 const settingsBtn = document.getElementById("menuSettings");
 const logoutBtn = document.getElementById("logoutBtn");
 
@@ -19,10 +20,11 @@ const dashboardSection = document.getElementById("dashboardSection");
 const pendingSection = document.getElementById("pendingSection");
 const approvedSection = document.getElementById("approvedSection");
 const rejectedSection = document.getElementById("rejectedSection");
-
-
+const tournamentSection = document.getElementById("tournamentSection");
+const settingsSection = document.getElementById("settingsSection");
 
 const summarySection = document.getElementById("summarySection");
+const toolbar = document.querySelector(".toolbar");
 
 // SHOW ONLY SELECTED SECTION
 
@@ -31,7 +33,10 @@ function hideAll(){
     pendingSection.style.display="none";
     approvedSection.style.display="none";
     rejectedSection.style.display="none";
+    if (tournamentSection) tournamentSection.style.display="none";
+    if (settingsSection) settingsSection.style.display="none";
     if (summarySection) summarySection.style.display="none";
+    if (toolbar) toolbar.style.display="none";
 
 }
 
@@ -59,9 +64,6 @@ dashboardBtn.onclick=function(){
 
     hideAll();
 
-    pendingSection.style.display="block";
-    approvedSection.style.display="block";
-    rejectedSection.style.display="block";
     if (summarySection) summarySection.style.display="block";
 
     activeMenu(dashboardBtn);
@@ -81,6 +83,7 @@ pendingBtn.onclick=function(){
     hideAll();
 
     pendingSection.style.display="block";
+    if (toolbar) toolbar.style.display="flex";
 
     activeMenu(pendingBtn);
 
@@ -97,6 +100,7 @@ approvedBtn.onclick=function(){
     hideAll();
 
     approvedSection.style.display="block";
+    if (toolbar) toolbar.style.display="flex";
 
     activeMenu(approvedBtn);
 
@@ -113,6 +117,7 @@ rejectedBtn.onclick=function(){
     hideAll();
 
     rejectedSection.style.display="block";
+    if (toolbar) toolbar.style.display="flex";
 
     activeMenu(rejectedBtn);
 
@@ -121,12 +126,34 @@ rejectedBtn.onclick=function(){
 };
 
 
+// TOURNAMENT
+
+if (tournamentBtn) {
+    tournamentBtn.onclick=function(){
+        hideAll();
+        if (tournamentSection) tournamentSection.style.display="block";
+        if (toolbar) toolbar.style.display="none"; // No toolbar for tournament center for now
+        activeMenu(tournamentBtn);
+        
+        // Load tournament data if the function exists
+        if (typeof loadAdminTournamentData === "function") {
+            loadAdminTournamentData();
+        }
+    };
+}
+
+
 // SETTINGS
 
 settingsBtn.onclick=function(){
-
-    alert("Settings Coming Soon");
-
+    hideAll();
+    if (settingsSection) settingsSection.style.display="block";
+    if (toolbar) toolbar.style.display="none";
+    activeMenu(settingsBtn);
+    
+    if (typeof loadAdminSettingsData === "function") {
+        loadAdminSettingsData();
+    }
 };
 
 

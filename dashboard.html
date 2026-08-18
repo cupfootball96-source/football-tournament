@@ -191,7 +191,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 
 <h5>Remaining</h5>
 
-<h2 id="remaining">64</h2>
+<h2 id="remaining">48</h2>
 
 </div>
 
@@ -456,8 +456,7 @@ Rejected Players
             <select id="matchStageFilter" class="custom-select" onchange="filterMatches()" style="padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);">
                 <option value="All">All Stages</option>
                 <option value="Group">Group Stage</option>
-                <option value="Quarter">Quarter-Final</option>
-                <option value="Semi">Semi-Final</option>
+                <option value="SemiFinal">Semi-Final</option>
                 <option value="Final">Final</option>
             </select>
         </div>
@@ -502,41 +501,52 @@ Rejected Players
 
 <!-- Add Team Modal -->
 <div class="modal" id="teamModal">
-    <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
         <span class="close" onclick="closeTeamModal()">&times;</span>
         <h2>Add/Edit Team</h2>
-        <form id="teamForm" style="display:flex; flex-direction:column; gap:15px; margin-top:20px;">
+        <form id="teamForm" style="display:grid; grid-template-columns: 1fr 1fr; gap:25px; margin-top:20px;">
             <input type="hidden" id="teamIdInput">
-            <input type="text" id="teamNameInput" placeholder="Team Name (Optional)" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
-            <select id="teamGroupInput" class="custom-select" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
-                <option value="">Unassigned Group</option>
-                <option value="A">Group A</option>
-                <option value="B">Group B</option>
-                <option value="C">Group C</option>
-                <option value="D">Group D</option>
-            </select>
             
-            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:10px;">
-                <label style="color:var(--gold); font-size:14px; font-weight:bold;">Owner Details (Optional)</label>
-                <input type="text" id="ownerNameInput" placeholder="Owner Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
-                <input type="text" id="businessNameInput" placeholder="Business Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
-                <input type="url" id="instagramInput" placeholder="Instagram Profile URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
-                <input type="url" id="websiteInput" placeholder="Website URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
-                <input type="url" id="whatsappInput" placeholder="WhatsApp Link" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+            <!-- LEFT COLUMN -->
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <input type="text" id="teamNameInput" placeholder="Team Name (Optional)" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                <select id="teamGroupInput" class="custom-select" style="padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    <option value="">Unassigned Group</option>
+                    <option value="A">Group A</option>
+                    <option value="B">Group B</option>
+                </select>
+                
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:10px;">
+                    <label style="color:var(--gold); font-size:14px; font-weight:bold;">Owner Details (Optional)</label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <input type="text" id="ownerNameInput" placeholder="Owner Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                        <input type="text" id="businessNameInput" placeholder="Business Name" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <input type="url" id="instagramInput" placeholder="Instagram Profile URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                        <input type="url" id="facebookInput" placeholder="Facebook Profile URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                        <input type="url" id="websiteInput" placeholder="Website URL" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                        <input type="url" id="whatsappInput" placeholder="WhatsApp Number" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1);">
+                    </div></div>
+                <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+                    <label style="display:block; margin-bottom:5px; color:var(--gold); font-size:12px;">Team Logo (Max 2MB)</label>
+                    <input type="file" id="teamLogoInput" accept="image/*" style="color:white; font-size:14px;">
+                </div>
             </div>
-            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
-                <label style="display:block; margin-bottom:5px; color:var(--gold); font-size:12px;">Team Logo (Max 2MB)</label>
-                <input type="file" id="teamLogoInput" accept="image/*" style="color:white; font-size:14px;">
-            </div>
-            
-            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.1);">
-                <label style="display:block; margin-bottom:5px; color:var(--gold); font-size:12px;">Select Players</label>
-                <div id="playerSelectionContainer" style="max-height: 150px; overflow-y: auto; display:flex; flex-direction:column; gap:5px; color:white; font-size:14px;">
+
+            <!-- RIGHT COLUMN -->
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; height:100%;">
+                <label style="display:block; margin-bottom:10px; color:var(--gold); font-size:14px; font-weight:bold;">Select Players</label>
+                <input type="text" id="playerSearchInput" placeholder="Search by name or position..." onkeyup="filterTeamPlayers()" style="padding:10px; border-radius:5px; background:rgba(0,0,0,0.3); color:white; border:1px solid rgba(255,255,255,0.1); margin-bottom:15px; width:100%;">
+                
+                <div id="playerSelectionContainer" style="flex: 1; min-height: 350px; max-height: 480px; overflow-y: auto; display:flex; flex-direction:column; gap:5px; color:white; font-size:14px; padding-right:5px;">
                     <!-- Checkboxes injected by JS -->
                 </div>
             </div>
 
-            <button type="submit" class="approve-btn" style="padding:12px; margin-top:10px; font-weight:bold;">Save Team</button>
+            <button type="submit" class="approve-btn" style="padding:12px; font-weight:bold; grid-column: 1 / -1; margin-top: 10px; font-size: 16px;">Save Team</button>
         </form>
     </div>
 </div>
@@ -552,8 +562,7 @@ Rejected Players
             <div style="display:flex; gap:10px;">
                 <select id="matchStageInput" class="custom-select" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
                     <option value="Group">Group Stage</option>
-                    <option value="Quarter">Quarter-Final</option>
-                    <option value="Semi">Semi-Final</option>
+                    <option value="SemiFinal">Semi-Final</option>
                     <option value="Final">Final</option>
                 </select>
                 <select id="matchStatusInput" class="custom-select" onchange="toggleMatchStatusFields()" required style="flex:1; padding:10px; border-radius:5px; background:rgba(255,255,255,0.05); color:white; border:1px solid rgba(255,255,255,0.1);">
@@ -650,7 +659,7 @@ Rejected Players
     <!-- Registration Deadline -->
     <div class="table-card" style="margin-bottom:30px;">
         <h3>Registration Deadline</h3>
-        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">Set the final date and time for new player registrations. If 64 players are approved, registration will also close automatically.</p>
+        <p style="color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:15px;">Set the final date and time for new player registrations. If 48 players are approved, registration will also close automatically.</p>
         
         <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
             <input type="text" id="deadlineInput" placeholder="e.g. August 10, 2026 23:59:59" style="flex:1; padding:10px; border-radius:5px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:white; font-family:'Poppins', sans-serif;">

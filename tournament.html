@@ -233,50 +233,6 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Group C -->
-            <div class="group-card">
-                <div class="group-header">Group C</div>
-                <table class="group-table">
-                    <thead>
-                        <tr>
-                            <th>Team</th>
-                            <th title="Played">P</th>
-                            <th title="Won">W</th>
-                            <th title="Drawn">D</th>
-                            <th title="Lost">L</th>
-                            <th title="Goals For">GF</th>
-                            <th title="Goals Against">GA</th>
-                            <th title="Goal Difference">GD</th>
-                            <th title="Points">Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody id="groupC-body">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-            <!-- Group D -->
-            <div class="group-card">
-                <div class="group-header">Group D</div>
-                <table class="group-table">
-                    <thead>
-                        <tr>
-                            <th>Team</th>
-                            <th title="Played">P</th>
-                            <th title="Won">W</th>
-                            <th title="Drawn">D</th>
-                            <th title="Lost">L</th>
-                            <th title="Goals For">GF</th>
-                            <th title="Goals Against">GA</th>
-                            <th title="Goal Difference">GD</th>
-                            <th title="Points">Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody id="groupD-body">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 </section>
@@ -332,33 +288,18 @@
 <!-- KNOCKOUT BRACKET -->
 <section class="knockout-stage" style="padding: 20px 0 80px;">
     <div class="container">
-        <div class="section-title">
-            <h2>Knockout Stage</h2>
-            <p>Quarter-Finals to Final</p>
+        <div class="section-title" style="margin-bottom: 30px;">
+            <p>Semi-Finals to Final</p>
         </div>
         
         <div class="bracket-wrapper">
             <div class="bracket-container">
-                <!-- Left Side (Quarter-Finals) -->
-                <div class="bracket-column left-qf">
-                    <div class="bracket-match" id="bracket-MATCH-QF1">
-                        <div class="match-title">Quarter-Final 1</div>
-                        <div class="team"><span class="team-name team-a-name">Winner Grp A</span><span class="score team-a-score">-</span></div>
-                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp B</span><span class="score team-b-score">-</span></div>
-                    </div>
-                    <div class="bracket-match" id="bracket-MATCH-QF2">
-                        <div class="match-title">Quarter-Final 2</div>
-                        <div class="team"><span class="team-name team-a-name">Winner Grp C</span><span class="score team-a-score">-</span></div>
-                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp D</span><span class="score team-b-score">-</span></div>
-                    </div>
-                </div>
-
                 <!-- Left Side (Semi-Finals) -->
                 <div class="bracket-column left-sf">
                     <div class="bracket-match" id="bracket-MATCH-SF1">
                         <div class="match-title">Semi-Final 1</div>
-                        <div class="team"><span class="team-name team-a-name">Winner QF 1</span><span class="score team-a-score">-</span></div>
-                        <div class="team"><span class="team-name team-b-name">Winner QF 2</span><span class="score team-b-score">-</span></div>
+                        <div class="team"><span class="team-name team-a-name">Winner Grp A</span><span class="score team-a-score">-</span></div>
+                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp B</span><span class="score team-b-score">-</span></div>
                     </div>
                 </div>
 
@@ -376,22 +317,8 @@
                 <div class="bracket-column right-sf">
                     <div class="bracket-match" id="bracket-MATCH-SF2">
                         <div class="match-title">Semi-Final 2</div>
-                        <div class="team"><span class="team-name team-a-name">Winner QF 3</span><span class="score team-a-score">-</span></div>
-                        <div class="team"><span class="team-name team-b-name">Winner QF 4</span><span class="score team-b-score">-</span></div>
-                    </div>
-                </div>
-
-                <!-- Right Side (Quarter-Finals) -->
-                <div class="bracket-column right-qf">
-                    <div class="bracket-match" id="bracket-MATCH-QF3">
-                        <div class="match-title">Quarter-Final 3</div>
                         <div class="team"><span class="team-name team-a-name">Winner Grp B</span><span class="score team-a-score">-</span></div>
                         <div class="team"><span class="team-name team-b-name">Runner-Up Grp A</span><span class="score team-b-score">-</span></div>
-                    </div>
-                    <div class="bracket-match" id="bracket-MATCH-QF4">
-                        <div class="match-title">Quarter-Final 4</div>
-                        <div class="team"><span class="team-name team-a-name">Winner Grp D</span><span class="score team-a-score">-</span></div>
-                        <div class="team"><span class="team-name team-b-name">Runner-Up Grp C</span><span class="score team-b-score">-</span></div>
                     </div>
                 </div>
             </div>

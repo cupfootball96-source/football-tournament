@@ -50,15 +50,15 @@ function renderOverview(data) {
                 let tAName = m.teamA, tBName = m.teamB;
                 let tALogo = 'assets/logo.png', tBLogo = 'assets/logo.png';
                 if (data.teams) {
-                    const fA = data.teams.find(t => t.teamID === m.teamA);
+                    const fA = data.teams.find(t => t.teamID === m.teamA || t.teamName === m.teamA);
                     if (fA) {
                         tAName = fA.teamName;
-                        if (fA.logoURL) tALogo = getDirectImageUrl(fA.logoURL);
+                        if (fA.logoURL) tALogo = getTeamLogoUrl(fA.logoURL);
                     }
-                    const fB = data.teams.find(t => t.teamID === m.teamB);
+                    const fB = data.teams.find(t => t.teamID === m.teamB || t.teamName === m.teamB);
                     if (fB) {
                         tBName = fB.teamName;
-                        if (fB.logoURL) tBLogo = getDirectImageUrl(fB.logoURL);
+                        if (fB.logoURL) tBLogo = getTeamLogoUrl(fB.logoURL);
                     }
                 }
                 const matchId = `match-${m.teamA}-${m.teamB}-${m.stage.replace(/\\s+/g, '-')}`;
@@ -114,11 +114,11 @@ function getDirectImageUrl(url) {
     if (!url) return 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; // Fallback
     if (url.includes('drive.google.com/file/d/')) {
         const id = url.split('/d/')[1].split('/')[0];
-        return `https://drive.google.com/uc?export=view&id=${id}`;
+        return `https://lh3.googleusercontent.com/d/${id}`;
     }
     if (url.includes('drive.google.com/open?id=')) {
         const id = url.split('id=')[1];
-        return `https://drive.google.com/uc?export=view&id=${id}`;
+        return `https://lh3.googleusercontent.com/d/${id}`;
     }
     return url;
 }
@@ -145,22 +145,18 @@ function sortGroup(teams) {
     });
 }
 
-function renderGroups(groupsData) {
+function renderGroups(groupsData, teamsData) {
     if (!groupsData || Object.keys(groupsData).length === 0) {
         // Fallback to empty standings if no data
         groupsData = {
-            A: Array.from({length: 4}, (_, i) => ({ name: `Team A${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 })),
-            B: Array.from({length: 4}, (_, i) => ({ name: `Team B${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 })),
-            C: Array.from({length: 4}, (_, i) => ({ name: `Team C${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 })),
-            D: Array.from({length: 4}, (_, i) => ({ name: `Team D${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 }))
+            A: Array.from({length: 6}, (_, i) => ({ name: `Team A${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 })),
+            B: Array.from({length: 6}, (_, i) => ({ name: `Team B${i+1}`, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 }))
         };
     }
 
     const groupContainers = {
         A: document.getElementById('groupA-body'),
-        B: document.getElementById('groupB-body'),
-        C: document.getElementById('groupC-body'),
-        D: document.getElementById('groupD-body')
+        B: document.getElementById('groupB-body')
     };
 
     for (const groupName in groupContainers) {
@@ -175,7 +171,15 @@ function renderGroups(groupsData) {
         teams.forEach((team, index) => {
             const rowClass = index < 2 ? 'advancing' : '';
             const gdDisplay = team.gd > 0 ? `+${team.gd}` : team.gd;
-            const logo = team.logo ? getDirectImageUrl(team.logo) : 'assets/logo.png';
+            
+            let logo = 'assets/logo.png';
+            if (teamsData) {
+                const matchedTeam = teamsData.find(t => t.teamName === team.name || t.teamID === team.name);
+                if (matchedTeam && matchedTeam.logoURL) {
+                    logo = getTeamLogoUrl(matchedTeam.logoURL);
+                }
+            }
+            if (team.logo) logo = getTeamLogoUrl(team.logo);
 
             tbody.innerHTML += `
                 <tr class="${rowClass}">
@@ -255,6 +259,9 @@ function renderMatches(matches, teams) {
 
     container.innerHTML = '';
     
+    // Extract semis chronologically to properly label 1 and 2
+    const semis = matches.filter(m => m.stage === 'SemiFinal' || m.stage === 'Semi');
+
     // Reverse matches so newest are at the top (since they are appended in Sheets)
     const displayMatches = [...matches].reverse();
 
@@ -263,15 +270,15 @@ function renderMatches(matches, teams) {
         let tB = { name: m.teamB, logo: 'assets/logo.png' };
         
         if (teams) {
-            const foundA = teams.find(t => t.teamID === m.teamA);
+            const foundA = teams.find(t => t.teamID === m.teamA || t.teamName === m.teamA);
             if (foundA) {
                 tA.name = foundA.teamName;
-                if (foundA.logoURL) tA.logo = foundA.logoURL;
+                if (foundA.logoURL) tA.logo = getTeamLogoUrl(foundA.logoURL);
             }
-            const foundB = teams.find(t => t.teamID === m.teamB);
+            const foundB = teams.find(t => t.teamID === m.teamB || t.teamName === m.teamB);
             if (foundB) {
                 tB.name = foundB.teamName;
-                if (foundB.logoURL) tB.logo = foundB.logoURL;
+                if (foundB.logoURL) tB.logo = getTeamLogoUrl(foundB.logoURL);
             }
         }
         
@@ -321,9 +328,16 @@ function renderMatches(matches, teams) {
         if (scorersA.length > 0) scorersHtmlA = scorersA.join('<br>');
         if (scorersB.length > 0) scorersHtmlB = scorersB.join('<br>');
 
-        const matchId = `match-${m.teamA}-${m.teamB}-${m.stage.replace(/\\s+/g, '-')}`;
-        let displayStage = m.stage.toLowerCase().includes('group') ? `${m.stage} Match` : `${m.stage} Stage`;
-        if (m.stage.toLowerCase() === 'final' || m.stage.toLowerCase().includes('third')) displayStage = m.stage;
+        const mStage = (m.stage || '').trim();
+        const matchId = `match-${m.teamA}-${m.teamB}-${mStage.replace(/\s+/g, '-')}`;
+        let displayStage = mStage.toLowerCase().includes('group') ? `${mStage} Match` : `${mStage} Stage`;
+        
+        if (mStage.toLowerCase() === 'final' || mStage.toLowerCase().includes('third')) {
+            displayStage = "Final";
+        } else if (mStage === 'SemiFinal' || mStage === 'Semi') {
+            const semiIndex = semis.findIndex(s => s.matchID === m.matchID);
+            displayStage = `Semi Final - ${semiIndex + 1}`;
+        }
 
         let matchType = m.status === 'Completed' ? 'result' : 'upcoming';
 
@@ -365,8 +379,7 @@ function renderKnockoutBracket(matches, teams) {
     if (!matches) return;
 
     // Helper to populate a bracket match given the match object and its DOM ID
-    const populateMatch = (domId, matchId) => {
-        const match = matches.find(m => m.matchID === matchId);
+    const populateMatchObj = (domId, match) => {
         const container = document.getElementById(domId);
         if (!container) return;
 
@@ -379,19 +392,45 @@ function renderKnockoutBracket(matches, teams) {
         if (match) {
             let tAName = match.teamA;
             let tBName = match.teamB;
+            let logoA = '';
+            let logoB = '';
+
             if (teams) {
-                const fA = teams.find(t => t.teamID === match.teamA);
-                if (fA) tAName = fA.teamName;
-                const fB = teams.find(t => t.teamID === match.teamB);
-                if (fB) tBName = fB.teamName;
+                const fA = teams.find(t => t.teamID === match.teamA || t.teamName === match.teamA);
+                if (fA) {
+                    tAName = fA.teamName;
+                    if (fA.logoURL) logoA = `<img src="${getTeamLogoUrl(fA.logoURL)}" style="width:24px;height:24px;border-radius:50%;margin-right:10px;vertical-align:middle;">`;
+                }
+                const fB = teams.find(t => t.teamID === match.teamB || t.teamName === match.teamB);
+                if (fB) {
+                    tBName = fB.teamName;
+                    if (fB.logoURL) logoB = `<img src="${getTeamLogoUrl(fB.logoURL)}" style="width:24px;height:24px;border-radius:50%;margin-right:10px;vertical-align:middle;">`;
+                }
             }
 
-            // Keep the default labels (like "Winner Grp A") if not populated yet
-            if (!tAName.startsWith('Winner') && !tAName.startsWith('Runner-Up') && match.teamA !== "") teamA_Name.textContent = tAName;
-            if (!tBName.startsWith('Winner') && !tBName.startsWith('Runner-Up') && match.teamB !== "") teamB_Name.textContent = tBName;
-            
-            // For Quarter/Semi, if a team hasn't progressed yet, its teamA might just be an empty string or standard text, handled above.
+            let isRealA = !tAName.startsWith('Winner') && !tAName.startsWith('Runner-Up') && tAName !== 'TBD' && match.teamA !== "";
+            let isRealB = !tBName.startsWith('Winner') && !tBName.startsWith('Runner-Up') && tBName !== 'TBD' && match.teamB !== "";
 
+            let crownHtml = `<i class="fa-solid fa-crown" style="color:var(--gold); margin-left:8px; font-size:16px;"></i>`;
+            let crownA = '';
+            let crownB = '';
+
+            if (match.status === 'Completed') {
+                if (parseInt(match.scoreA) > parseInt(match.scoreB)) crownA = crownHtml;
+                else if (parseInt(match.scoreB) > parseInt(match.scoreA)) crownB = crownHtml;
+            }
+
+            if (isRealA) {
+                teamA_Name.innerHTML = `${logoA}${tAName}${crownA}`;
+                teamA_Name.parentElement.style.cursor = 'pointer';
+                teamA_Name.parentElement.onclick = () => openTeamJourney(match.teamA);
+            }
+            if (isRealB) {
+                teamB_Name.innerHTML = `${logoB}${tBName}${crownB}`;
+                teamB_Name.parentElement.style.cursor = 'pointer';
+                teamB_Name.parentElement.onclick = () => openTeamJourney(match.teamB);
+            }
+            
             // Only show scores if completed
             if (match.status === 'Completed') {
                 teamA_Score.textContent = match.scoreA;
@@ -412,16 +451,17 @@ function renderKnockoutBracket(matches, teams) {
         }
     };
 
-    // Assuming match IDs match what the backend uses:
-    populateMatch('bracket-MATCH-QF1', 'M-QF-1');
-    populateMatch('bracket-MATCH-QF2', 'M-QF-2');
-    populateMatch('bracket-MATCH-QF3', 'M-QF-3');
-    populateMatch('bracket-MATCH-QF4', 'M-QF-4');
-    
-    populateMatch('bracket-MATCH-SF1', 'M-SF-1');
-    populateMatch('bracket-MATCH-SF2', 'M-SF-2');
-    
-    populateMatch('bracket-MATCH-F1', 'M-F-1');
+    // Find matches even if they were manually created with random IDs
+    const semis = matches.filter(m => m.stage === 'SemiFinal' || m.stage === 'Semi');
+    const finals = matches.filter(m => m.stage === 'Final');
+
+    let sf1 = matches.find(m => m.matchID === 'MATCH-SF1') || semis[0];
+    let sf2 = matches.find(m => m.matchID === 'MATCH-SF2') || semis[1];
+    let f1 = matches.find(m => m.matchID === 'MATCH-F1') || finals[0];
+
+    populateMatchObj('bracket-MATCH-SF1', sf1);
+    populateMatchObj('bracket-MATCH-SF2', sf2);
+    populateMatchObj('bracket-MATCH-F1', f1);
 }
 
 function showSkeletons() {
@@ -582,16 +622,17 @@ async function loadTournamentData() {
 
         // Fetch tournament data
         const data = await fetchWithCache(WEB_APP_URL + "?action=getTournamentData", "nec_tournament_data");
+        window.tournamentDataGlobal = data;
         
         if (data) {
             renderOverview(data);
         }
 
         if (data && data.groups) {
-            renderGroups(data.groups);
+            renderGroups(data.groups, data.teams);
         } else {
             console.error("No group data received.");
-            renderGroups(null);
+            renderGroups(null, null);
         }
 
 
@@ -717,7 +758,7 @@ async function initTeamPage() {
 
 function renderTeamsFull(teams, grid) {
     let displayTeams = teams || [];
-    const numPlaceholders = Math.max(0, 16 - displayTeams.length);
+    const numPlaceholders = Math.max(0, 12 - displayTeams.length);
     let html = "";
 
     displayTeams.forEach((team, i) => {
@@ -818,11 +859,43 @@ function renderTeamsFull(teams, grid) {
     });
 }
 
+function ensureTeamModalInDOM() {
+    let modalOverlay = document.querySelector(".team-modal-overlay");
+    if (!modalOverlay) {
+        modalOverlay = document.createElement("div");
+        modalOverlay.className = "team-modal-overlay";
+        modalOverlay.innerHTML = `
+            <div class="team-modal-close" onclick="closeTeamModal()"><i class="fa-solid fa-xmark"></i></div>
+            <div class="team-modal-content">
+                <div class="team-flip-card" id="teamModalFlipCard">
+                    <div class="team-card-face team-card-front">
+                        <img src="assets/logo.png" style="width:150px; opacity:0.5;" alt="NEC Logo">
+                    </div>
+                    <div class="team-card-face team-card-back" id="teamModalBack">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalOverlay);
+    }
+}
+
+window.openTeamJourney = function(teamID) {
+    if (!window.tournamentDataGlobal || !window.tournamentDataGlobal.teams) return;
+    const team = window.tournamentDataGlobal.teams.find(t => t.teamID === teamID || t.teamName === teamID);
+    if (team) {
+        ensureTeamModalInDOM();
+        openTeamModal(team);
+    }
+};
+
 function openTeamModal(team) {
-    const modalBack = document.getElementById("teamModalBack");
     const overlay = document.querySelector(".team-modal-overlay");
+    if (!overlay) return;
     
-    if (!modalBack || !overlay) return;
+    const modalBack = document.getElementById("teamModalBack");
+    if (!modalBack) return;
 
     const logoUrl = getTeamLogoUrl(team.logoURL);
     const logoHtml = logoUrl 
@@ -833,53 +906,222 @@ function openTeamModal(team) {
     let businessName = (team.owner && team.owner.businessName) ? team.owner.businessName : "TBA";
     
     let socialsHtml = "";
-    if (team.owner && team.owner.instagram) socialsHtml += `<a href="${team.owner.instagram}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-brands fa-instagram"></i></a>`;
-    if (team.owner && team.owner.whatsapp) socialsHtml += `<a href="${team.owner.whatsapp}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-brands fa-whatsapp"></i></a>`;
-    if (team.owner && team.owner.website) socialsHtml += `<a href="${team.owner.website}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-solid fa-globe"></i></a>`;
+    if (team.owner) {
+        if (team.owner.instagram) {
+            let insta = String(team.owner.instagram).trim();
+            if (!insta.startsWith('http')) {
+                insta = insta.replace('@', '');
+                insta = `https://instagram.com/${insta}`;
+            }
+            socialsHtml += `<a href="${insta}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-brands fa-instagram"></i></a>`;
+        }
+        if (team.owner.whatsapp) {
+            let wa = String(team.owner.whatsapp).trim();
+            if (!wa.startsWith('http')) {
+                let digits = wa.replace(/\D/g, '');
+                if (digits.length === 10) digits = '91' + digits;
+                wa = `https://wa.me/${digits}`;
+            }
+            socialsHtml += `<a href="${wa}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-brands fa-whatsapp"></i></a>`;
+        }
+        if (team.owner.facebook) {
+            let fb = String(team.owner.facebook).trim();
+            if (!fb.startsWith('http')) {
+                fb = `https://facebook.com/${fb}`;
+            }
+            socialsHtml += `<a href="${fb}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="fa-brands fa-facebook"></i></a>`;
+        }
+        if (team.owner.website) {
+            let web = String(team.owner.website).trim();
+            let icon = 'fa-globe';
+            if (web.toLowerCase().includes('facebook.com') || web.toLowerCase().includes('fb.me')) icon = 'fa-facebook';
+            else if (web.toLowerCase().includes('twitter.com') || web.toLowerCase().includes('x.com')) icon = 'fa-x-twitter';
+            else if (web.toLowerCase().includes('youtube.com')) icon = 'fa-youtube';
+
+            if (!web.startsWith('http')) {
+                web = `https://${web}`;
+            }
+            socialsHtml += `<a href="${web}" target="_blank" style="color:var(--gold);margin:0 10px;font-size:28px;transition:0.3s;"><i class="${icon === 'fa-globe' ? 'fa-solid' : 'fa-brands'} ${icon}"></i></a>`;
+        }
+    }
+
+    const getDirectImageUrl = (url) => {
+        if (!url) return "";
+        if (url.includes('/d/')) {
+            const parts = url.split('/d/');
+            if (parts.length > 1) {
+                const id = parts[1].split('/')[0];
+                return "https://lh3.googleusercontent.com/d/" + id + "=w600?authuser=0";
+            }
+        }
+        return url;
+    };
 
     let playersHtml = "";
     if (team.players && team.players.length > 0) {
-        team.players.forEach(p => {
+        const sortedPlayers = [...team.players].sort((a, b) => {
+            let nameA = typeof a === "string" ? a : a.name;
+            let nameB = typeof b === "string" ? b : b.name;
+            let pA = globalPlayers.find(gp => gp.name === nameA);
+            let pB = globalPlayers.find(gp => gp.name === nameB);
+            
+            let numA = pA && pA.id ? parseInt(String(pA.id).replace(/\D/g, '')) || 999999 : 999999;
+            let numB = pB && pB.id ? parseInt(String(pB.id).replace(/\D/g, '')) || 999999 : 999999;
+            
+            return numA - numB;
+        });
+
+        let playerGoalsMap = {};
+        let uniqueTournamentGoals = new Set();
+        if (window.tournamentDataGlobal && window.tournamentDataGlobal.topScorers) {
+            window.tournamentDataGlobal.topScorers.forEach(ts => {
+                playerGoalsMap[ts.name] = ts.goals;
+                if (ts.goals > 0) {
+                    uniqueTournamentGoals.add(ts.goals);
+                }
+            });
+        }
+
+        let sortedTournamentGoals = Array.from(uniqueTournamentGoals).sort((a, b) => b - a);
+        let getPlayerRank = (goals) => {
+            if (!goals || goals <= 0) return null;
+            let index = sortedTournamentGoals.indexOf(goals);
+            if (index !== -1 && index < 5) return index + 1; // Ranks 1 to 5
+            return null;
+        };
+
+        sortedPlayers.forEach(p => {
             let pName = typeof p === "string" ? p : p.name;
             let fullPlayer = globalPlayers.find(gp => gp.name === pName);
             
             let photoUrl = "";
             let pPosition = "Player";
             let pAge = "";
-            let pFoot = "";
-            
             if (fullPlayer) {
-                photoUrl = getTeamLogoUrl(fullPlayer.photo);
+                photoUrl = fullPlayer.photo ? getDirectImageUrl(fullPlayer.photo) : "";
                 pPosition = fullPlayer.position || "Player";
                 pAge = fullPlayer.age || "";
-                pFoot = fullPlayer.foot || "";
-            } else if (typeof p === "object") {
-                pPosition = p.role || "Player";
+            }
+            
+            let pGoals = playerGoalsMap[pName] || 0;
+            let rank = getPlayerRank(pGoals);
+            
+            let tagHtml = "";
+            let cardStyle = "";
+            let avatarImgStyle = "";
+            let nameColor = "";
+            let iconShadow = "";
+            
+            if (rank === 1) {
+                tagHtml = `<div style="position:absolute; top:-15px; left:50%; transform:translateX(-50%); background: linear-gradient(135deg, #FFD700, #FF8C00); color: #000; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); z-index: 10; white-space: nowrap;"><i class="fa-solid fa-crown" style="margin-right:4px;"></i> #1 SCORER</div>`;
+                cardStyle = "border: 1px solid rgba(255, 215, 0, 0.3); background: rgba(255, 215, 0, 0.05); transform: translateY(-3px);";
+                avatarImgStyle = "border: 3px solid var(--gold); padding: 2px; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);";
+                nameColor = "color:var(--gold);";
+                iconShadow = "text-shadow: 0 0 15px rgba(255, 215, 0, 0.5); color: var(--gold);";
+            } else if (rank === 2) {
+                tagHtml = `<div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background: linear-gradient(135deg, #E0E0E0, #9E9E9E); color: #000; font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; box-shadow: 0 3px 8px rgba(158, 158, 158, 0.4); z-index: 10; white-space: nowrap;"><i class="fa-solid fa-medal" style="margin-right:4px;"></i> #2 SCORER</div>`;
+                avatarImgStyle = "border: 2px solid #C0C0C0; padding: 2px;";
+                nameColor = "color:#C0C0C0;";
+                iconShadow = "color:#C0C0C0;";
+            } else if (rank === 3) {
+                tagHtml = `<div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background: linear-gradient(135deg, #CD7F32, #8B4513); color: #fff; font-size: 9px; font-weight: 900; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; box-shadow: 0 3px 8px rgba(205, 127, 50, 0.4); z-index: 10; white-space: nowrap;"><i class="fa-solid fa-medal" style="margin-right:4px;"></i> #3 SCORER</div>`;
+                avatarImgStyle = "border: 2px solid #CD7F32; padding: 2px;";
+                nameColor = "color:#CD7F32;";
+                iconShadow = "color:#CD7F32;";
+            } else if (rank === 4 || rank === 5) {
+                tagHtml = `<div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 8px; font-weight: 800; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; z-index: 10; white-space: nowrap;">#${rank} SCORER</div>`;
             }
             
             let avatarHtml = photoUrl 
-                ? `<img src="${photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                : `<i class="fa-solid fa-user"></i>`;
+                ? `<img src="${photoUrl}" alt="${pName}" style="${avatarImgStyle}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">`
+                : `<i class="fa-solid fa-user" style="${iconShadow}"></i>`;
                 
             let statsHtml = fullPlayer 
                 ? `<div style="display:flex;gap:15px;justify-content:center;margin-top:10px;font-size:12px;color:#888;">
                        ${pAge ? `<span><i class="fa-solid fa-calendar"></i> ${pAge} Yrs</span>` : ''}
-                       ${pFoot ? `<span><i class="fa-solid fa-shoe-prints"></i> ${pFoot}</span>` : ''}
+                       ${pGoals > 0 ? `<span style="${nameColor} font-weight: ${rank ? 'bold' : 'normal'};"><i class="fa-solid fa-futbol"></i> ${pGoals} Goals</span>` : ''}
                    </div>`
-                : "";
+                : '';
             
             playersHtml += `
-                <div class="team-player-card">
+                <div class="team-player-card" style="position:relative; ${cardStyle}">
+                    ${tagHtml}
                     <div class="avatar">${avatarHtml}</div>
-                    <h4>${pName}</h4>
-                    <p style="color:var(--gold);font-size:13px;font-weight:bold;margin-top:5px;">${pPosition}</p>
+                    <h4 style="${nameColor}">${pName}</h4>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:bold;margin-top:5px;">${pPosition}</p>
                     ${statsHtml}
                 </div>
             `;
         });
     } else {
-        playersHtml = `<p style="color:#aaa;text-align:center;grid-column:1/-1;margin-top:50px;">Auction Pending / No Players Assigned</p>`;
+        playersHtml = `<p style="color:#aaa; grid-column: 1 / -1; text-align:center;">No players registered yet.</p>`;
     }
+
+    // JOURNEY HTML
+    let journeyHtml = `<div class="team-journey" style="width:100%; max-width:800px; margin:0 auto; padding-top:20px;">`;
+    
+    if (window.tournamentDataGlobal && window.tournamentDataGlobal.matches) {
+        const playedMatches = window.tournamentDataGlobal.matches.filter(m => 
+            (m.teamA === team.teamID || m.teamB === team.teamID) && m.status === 'Completed'
+        );
+        
+        if (playedMatches.length === 0) {
+            journeyHtml += `<p style="color:#aaa; font-size:16px; text-align:center; margin-top:50px;">No matches played yet.</p>`;
+        } else {
+            journeyHtml += `<div class="journey-timeline" style="display:flex; flex-direction:column; gap:15px; width:100%;">`;
+            playedMatches.forEach(m => {
+                let isTeamA = m.teamA === team.teamID;
+                let myScore = isTeamA ? parseInt(m.scoreA) : parseInt(m.scoreB);
+                let oppScore = isTeamA ? parseInt(m.scoreB) : parseInt(m.scoreA);
+                let oppTeamID = isTeamA ? m.teamB : m.teamA;
+                
+                let oppTeamObj = window.tournamentDataGlobal.teams.find(t => t.teamID === oppTeamID);
+                let oppName = oppTeamObj ? oppTeamObj.teamName : oppTeamID;
+                let oppLogo = oppTeamObj ? getTeamLogoUrl(oppTeamObj.logoURL) : 'assets/logo.png';
+                
+                let resultClass = "";
+                let resultText = "";
+                let resultColor = "";
+                if (myScore > oppScore) {
+                    resultClass = "color:#4ade80;"; // green
+                    resultColor = "#4ade80";
+                    resultText = "WON";
+                } else if (myScore < oppScore) {
+                    resultClass = "color:#f87171;"; // red
+                    resultColor = "#f87171";
+                    resultText = "LOST";
+                } else {
+                    resultClass = "color:#fbbf24;"; // yellow
+                    resultColor = "#fbbf24";
+                    resultText = "DRAW";
+                }
+                
+                let stageName = m.stage || "Group Stage";
+                if (stageName === "SemiFinal") stageName = "Semi-Final";
+                if (stageName === "Final") stageName = "Final";
+                
+                journeyHtml += `
+                    <div style="background:rgba(255,255,255,0.05); padding:15px 20px; border-radius:12px; border-left:6px solid ${resultColor}; display:flex; justify-content:space-between; align-items:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); width:100%;">
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <img src="${oppLogo}" style="width:40px; height:40px; border-radius:50%; border:2px solid #444; object-fit:cover;">
+                            <div>
+                                <div style="font-size:12px; color:var(--gold); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">${stageName}</div>
+                                <div style="font-size:18px; font-weight:bold; color:#fff;">vs ${oppName}</div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:24px; font-family:monospace; font-weight:bold; ${resultClass}">${myScore} - ${oppScore}</div>
+                            <div style="font-size:12px; font-weight:bold; letter-spacing:2px; ${resultClass}">${resultText}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            journeyHtml += `</div>`;
+        }
+    } else {
+        journeyHtml += `<p style="color:#aaa; font-size:16px; text-align:center; margin-top:50px;">Journey data unavailable.</p>`;
+    }
+    journeyHtml += `</div>`;
 
     modalBack.innerHTML = `
         <div class="team-back-left">
@@ -901,11 +1143,22 @@ function openTeamModal(team) {
                     <span>${businessName}</span>
                 </div>
             </div>
+            
+            <div class="team-tab-toggles" style="display:flex; justify-content:center; gap:30px; margin-top:40px; background:rgba(0,0,0,0.3); padding:15px; border-radius:30px;">
+                <button onclick="document.getElementById('teamRosterContent').style.display='block'; document.getElementById('teamJourneyContent').style.display='none'; this.style.color='var(--gold)'; this.nextElementSibling.style.color='#aaa';" style="background:transparent; border:none; color:var(--gold); font-size:26px; cursor:pointer; transition:0.3s;" title="Squad Roster"><i class="fa-solid fa-users"></i></button>
+                <button onclick="document.getElementById('teamJourneyContent').style.display='block'; document.getElementById('teamRosterContent').style.display='none'; this.style.color='var(--gold)'; this.previousElementSibling.style.color='#aaa';" style="background:transparent; border:none; color:#aaa; font-size:26px; cursor:pointer; transition:0.3s;" title="Tournament Journey"><i class="fa-solid fa-route"></i></button>
+            </div>
         </div>
         <div class="team-back-right">
-            <h3 class="team-players-title">Squad Roster</h3>
-            <div class="team-players-grid">
-                ${playersHtml}
+            <div id="teamRosterContent">
+                <h3 class="team-players-title">Squad Roster</h3>
+                <div class="team-players-grid">
+                    ${playersHtml}
+                </div>
+            </div>
+            <div id="teamJourneyContent" style="display:none; width:100%; height:100%;">
+                <h3 class="team-players-title">Tournament Journey</h3>
+                ${journeyHtml}
             </div>
         </div>
     `;

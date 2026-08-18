@@ -123,7 +123,7 @@ window.addEventListener("DOMContentLoaded", async () => {
         if (data.registrationDeadline) {
             dynamicDeadline = new Date(data.registrationDeadline).getTime();
         }
-        if (data.approvedCount >= 64) {
+        if (data.approvedCount >= 48) {
             isTournamentFull = true;
         }
     } catch(err) {
@@ -555,7 +555,7 @@ document.addEventListener("click", async function(e) {
             }
             
             if(result.status === "full"){
-                alert("❌ All 64 player slots are filled.");
+                alert("❌ All 48 player slots are filled.");
                 btn.disabled = false;
                 btn.innerHTML = "CONFIRM";
                 return;

@@ -235,11 +235,10 @@ body {
     gap: 50px;
     align-items: center;
     width: 100%;
-    min-width: 900px; /* Forces horizontal scroll in the wrapper on small screens */
-    padding: 40px 20px;
-    background: rgba(10, 10, 10, 0.8);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 215, 0, 0.1);
+    min-width: 1050px; /* Forces horizontal scroll in the wrapper on small screens */
+    padding: 10px 20px 40px;
+    background: transparent;
+    border: none;
 }
 
 .bracket-column {
@@ -249,7 +248,7 @@ body {
     height: 100%;
     min-height: 400px;
     position: relative;
-    width: 220px;
+    width: 280px; /* Increased from 220px */
 }
 
 .bracket-match {
@@ -257,7 +256,7 @@ body {
     border: 1px solid rgba(255, 215, 0, 0.3);
     border-radius: 8px;
     margin: 15px 0;
-    padding: 10px;
+    padding: 12px; /* Increased from 10px */
     position: relative;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     transition: all 0.3s ease;
@@ -281,10 +280,10 @@ body {
 }
 
 .match-title {
-    font-size: 11px;
+    font-size: 13px; /* Increased from 11px */
     text-align: center;
     color: #aaa;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -293,11 +292,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 8px;
+    padding: 8px 10px; /* Increased from 6px 8px */
     background: rgba(255,255,255,0.05);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: 15px; /* Increased from 13px */
     color: #fff;
     font-weight: 500;
 }
@@ -316,21 +315,23 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 140px;
+    max-width: 180px; /* Increased from 140px */
+    display: flex;
+    align-items: center;
 }
 
 .score {
     background: rgba(0,0,0,0.5);
-    padding: 2px 6px;
+    padding: 4px 10px; /* Increased from 2px 6px */
     border-radius: 4px;
     font-family: monospace;
-    font-size: 14px;
+    font-size: 16px; /* Increased from 14px */
 }
 
 .center-final {
     align-items: center;
     justify-content: center;
-    width: 250px;
+    width: 320px; /* Increased from 250px */
 }
 
 .trophy-icon {
@@ -346,30 +347,8 @@ body {
     50% { transform: translateY(-10px); }
 }
 
+
 /* Connectors using pseudo-elements */
-.left-qf .bracket-match::after {
-    content: '';
-    position: absolute;
-    right: -25px;
-    top: 50%;
-    width: 25px;
-    height: 2px;
-    background: rgba(255, 215, 0, 0.3);
-}
-
-.left-sf::before {
-    content: '';
-    position: absolute;
-    left: -25px;
-    top: 25%;
-    height: 50%;
-    width: 25px;
-    border-top: 2px solid rgba(255, 215, 0, 0.3);
-    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-    border-right: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 0 4px 4px 0;
-}
-
 .left-sf .bracket-match::after {
     content: '';
     position: absolute;
@@ -380,28 +359,6 @@ body {
     background: rgba(255, 215, 0, 0.3);
 }
 
-.right-qf .bracket-match::before {
-    content: '';
-    position: absolute;
-    left: -25px;
-    top: 50%;
-    width: 25px;
-    height: 2px;
-    background: rgba(255, 215, 0, 0.3);
-}
-
-.right-sf::before {
-    content: '';
-    position: absolute;
-    right: -25px;
-    top: 25%;
-    height: 50%;
-    width: 25px;
-    border-top: 2px solid rgba(255, 215, 0, 0.3);
-    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-    border-left: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 4px 0 0 4px;
-}
 
 .right-sf .bracket-match::before {
     content: '';
@@ -1265,13 +1222,41 @@ body {
     }
     .team-back-left {
         width: 100%;
+        flex: 0 0 auto;
         border-right: none;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 20px;
+        padding: 15px;
+    }
+    .team-back-left img, 
+    .team-back-left .team-modal-logo-container > div {
+        width: 70px !important;
+        height: 70px !important;
+        margin-bottom: 5px !important;
+        border-width: 2px !important;
+        font-size: 30px !important;
+    }
+    .team-back-left h2 {
+        font-size: 22px;
+        margin-bottom: 5px;
+    }
+    .team-owner-details {
+        margin-top: 10px;
+        padding: 10px;
+    }
+    .team-owner-details h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+    }
+    .team-owner-row {
+        margin-bottom: 5px;
+        font-size: 14px;
     }
     .team-back-right {
         width: 100%;
-        padding: 20px;
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
     }
     .team-modal-content {
         height: 95%;

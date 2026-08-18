@@ -166,8 +166,7 @@ async function loadStats(){
     document.getElementById("rejected").textContent =
     data.rejected;
 
-    document.getElementById("remaining").textContent =
-    64 - data.approved;
+    document.getElementById("remaining").innerText = 48 - data.approved;
 
 }
 

@@ -638,7 +638,7 @@ async function loadTeams() {
             displayTeams = [...displayTeams].sort(() => 0.5 - Math.random());
         }
         
-        const maxDisplay = 16;
+        const maxDisplay = 12;
         const numPlaceholders = Math.max(0, maxDisplay - displayTeams.length);
         let html = "";
 
@@ -672,8 +672,18 @@ async function loadTeams() {
                 
                 let avatarsHtml = "";
                 if (team.players && team.players.length > 0) {
+                    const sortedPlayers = [...team.players].sort((a, b) => {
+                        let nameA = typeof a === 'string' ? a : a.name;
+                        let nameB = typeof b === 'string' ? b : b.name;
+                        let pA = allPlayers.find(x => x.name === nameA);
+                        let pB = allPlayers.find(x => x.name === nameB);
+                        let numA = pA && pA.id ? parseInt(String(pA.id).replace(/\D/g, '')) || 999999 : 999999;
+                        let numB = pB && pB.id ? parseInt(String(pB.id).replace(/\D/g, '')) || 999999 : 999999;
+                        return numA - numB;
+                    });
+                    
                     let count = 0;
-                    for (let p of team.players) {
+                    for (let p of sortedPlayers) {
                         if (count >= 3) break;
                         let pName = typeof p === 'string' ? p : p.name;
                         let fp = allPlayers.find(x => x.name === pName);

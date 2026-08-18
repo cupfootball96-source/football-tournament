@@ -294,10 +294,12 @@ function openAddTeamModal() {
     document.getElementById("teamNameInput").value = "";
     document.getElementById("teamGroupInput").value = "";
     document.getElementById("teamLogoInput").value = "";
+    if (document.getElementById("playerSearchInput")) document.getElementById("playerSearchInput").value = "";
     
     document.getElementById("ownerNameInput").value = "";
     document.getElementById("businessNameInput").value = "";
     document.getElementById("instagramInput").value = "";
+    document.getElementById("facebookInput").value = "";
     document.getElementById("websiteInput").value = "";
     document.getElementById("whatsappInput").value = "";
     
@@ -307,7 +309,7 @@ function openAddTeamModal() {
         if (isPlayerAssignedToAnotherTeam(p.id)) return;
         
         container.innerHTML += `
-            <label style="display:flex; align-items:center; gap:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:3px; cursor:pointer;">
+            <label class="team-player-label" style="display:flex; align-items:center; gap:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:3px; cursor:pointer;">
                 <input type="checkbox" name="teamPlayers" value="${p.id}" data-name="${p.name}" onchange="handlePlayerCheckboxChange()"> 
                 <img src="${getDirectImageUrl(p.photo)}" style="width:25px;height:25px;border-radius:50%;">
                 ${p.name} <span style="color:var(--gold);font-size:12px;">(${p.position})</span>
@@ -327,10 +329,12 @@ function editTeam(teamID) {
     document.getElementById("teamNameInput").value = team.teamName;
     document.getElementById("teamGroupInput").value = team.group;
     document.getElementById("teamLogoInput").value = ""; 
+    if (document.getElementById("playerSearchInput")) document.getElementById("playerSearchInput").value = "";
     
     document.getElementById("ownerNameInput").value = (team.owner && team.owner.ownerName) || "";
     document.getElementById("businessNameInput").value = (team.owner && team.owner.businessName) || "";
     document.getElementById("instagramInput").value = (team.owner && team.owner.instagram) || "";
+    document.getElementById("facebookInput").value = (team.owner && team.owner.facebook) || "";
     document.getElementById("websiteInput").value = (team.owner && team.owner.website) || "";
     document.getElementById("whatsappInput").value = (team.owner && team.owner.whatsapp) || "";
     
@@ -342,7 +346,7 @@ function editTeam(teamID) {
         const isSelected = team.players && team.players.some(tp => tp.id === p.id);
         const checkedStr = isSelected ? "checked" : "";
         container.innerHTML += `
-            <label style="display:flex; align-items:center; gap:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:3px; cursor:pointer;">
+            <label class="team-player-label" style="display:flex; align-items:center; gap:10px; padding:8px; background:rgba(0,0,0,0.3); border-radius:3px; cursor:pointer;">
                 <input type="checkbox" name="teamPlayers" value="${p.id}" data-name="${p.name}" ${checkedStr} onchange="handlePlayerCheckboxChange()"> 
                 <img src="${getDirectImageUrl(p.photo)}" style="width:25px;height:25px;border-radius:50%;">
                 ${p.name} <span style="color:var(--gold);font-size:12px;">(${p.position})</span>
@@ -430,6 +434,7 @@ document.getElementById("teamForm").addEventListener("submit", async function(e)
             ownerName: document.getElementById("ownerNameInput").value,
             businessName: document.getElementById("businessNameInput").value,
             instagram: document.getElementById("instagramInput").value,
+            facebook: document.getElementById("facebookInput").value,
             website: document.getElementById("websiteInput").value,
             whatsapp: document.getElementById("whatsappInput").value,
             logo: base64Logo,
@@ -858,3 +863,19 @@ document.getElementById("matchForm").addEventListener("submit", async function(e
     btn.innerHTML = originalText;
     btn.disabled = false;
 });
+
+function filterTeamPlayers() {
+    const input = document.getElementById('playerSearchInput');
+    const filter = input.value.toLowerCase();
+    const labels = document.querySelectorAll('.team-player-label');
+    
+    labels.forEach(label => {
+        const text = label.textContent || label.innerText;
+        if (text.toLowerCase().indexOf(filter) > -1) {
+            label.style.display = 'flex';
+        } else {
+            label.style.display = 'none';
+        }
+    });
+}
+

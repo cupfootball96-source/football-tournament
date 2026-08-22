@@ -226,8 +226,8 @@ function renderMatches() {
     
     const filter = document.getElementById("matchStageFilter").value;
     
-    // Sort matches: group by stage conceptually, or by matchID/Date. Let's just reverse so newest is top, or keep order.
-    let displayMatches = [...adminTournamentData.matches].reverse();
+    // Maintain chronological order
+    let displayMatches = [...adminTournamentData.matches];
 
     displayMatches.forEach(match => {
         if(filter !== "All" && match.stage !== filter) return;
@@ -239,8 +239,11 @@ function renderMatches() {
         let logoA = tA && tA.logoURL ? `<img src="${getDirectImageUrl(tA.logoURL)}" style="width:25px;height:25px;border-radius:50%;vertical-align:middle;margin-right:5px;">` : '';
         let logoB = tB && tB.logoURL ? `<img src="${getDirectImageUrl(tB.logoURL)}" style="width:25px;height:25px;border-radius:50%;vertical-align:middle;margin-left:5px;">` : '';
         
-        let scoreHtml = match.status === "Completed" ? `<strong style="font-size:18px;">${match.scoreA} - ${match.scoreB}</strong>` : `<em style="opacity:0.6;">vs</em>`;
-        let statusBadge = match.status === "Completed" ? `<span class="badge approved">Completed</span>` : `<span class="badge pending">Scheduled</span>`;
+        let scoreHtml = (match.status === "Completed" || match.status === "Live") ? `<strong style="font-size:18px;">${match.scoreA || 0} - ${match.scoreB || 0}</strong>` : `<em style="opacity:0.6;">vs</em>`;
+        let statusBadge = '';
+        if (match.status === "Completed") statusBadge = `<span class="badge approved">Completed</span>`;
+        else if (match.status === "Live") statusBadge = `<span class="badge" style="background:#e74c3c; color:white; animation:pulse 1.5s infinite;">Live</span>`;
+        else statusBadge = `<span class="badge pending">Scheduled</span>`;
 
         tbody.innerHTML += `
             <tr>
@@ -631,8 +634,8 @@ function renderCustomDropdown(dropdownId, hiddenInputId, contentSpanId, otherHid
     let html = '';
     window.customTeamsOptions.forEach(t => {
         let disabledClass = (otherInput && otherInput.value === t.id) ? 'disabled' : '';
-        // Escape quotes to be safe
-        let nameEscaped = t.name.replace(/'/g, "\'");
+        // Escape quotes to be safe in HTML attribute and JS string
+        let nameEscaped = t.name.replace(/"/g, '&quot;').replace(/'/g, "\\'");
         html += `
             <div class="custom-option ${disabledClass}" onclick="selectCustomTeam('${t.id}', '${nameEscaped}', '${t.logo}', '${dropdownId}', '${hiddenInputId}', '${contentSpanId}', '${otherHiddenInputId}')">
                 <img src="${t.logo}" onerror="this.src='assets/logo.png'">

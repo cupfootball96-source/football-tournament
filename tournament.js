@@ -262,8 +262,8 @@ function renderMatches(matches, teams) {
     // Extract semis chronologically to properly label 1 and 2
     const semis = matches.filter(m => m.stage === 'SemiFinal' || m.stage === 'Semi');
 
-    // Reverse matches so newest are at the top (since they are appended in Sheets)
-    const displayMatches = [...matches].reverse();
+    // Show matches chronologically (first to last)
+    const displayMatches = [...matches];
 
     displayMatches.forEach(m => {
         let tA = { name: m.teamA, logo: 'assets/logo.png' };
@@ -282,14 +282,25 @@ function renderMatches(matches, teams) {
             }
         }
         
-        let statusClass = m.status === 'Completed' ? 'status-completed' : 'status-scheduled';
+        let statusClass = 'status-scheduled';
         let outcomeBadgeText = m.status;
+        
+        if (m.status === 'Completed') statusClass = 'status-completed';
+        if (m.status === 'Live') statusClass = 'status-live';
         
         let crownA = '';
         let crownB = '';
         let classA = '';
         let classB = '';
         
+        // Show scores if Completed OR Live
+        let scoreA = '-';
+        let scoreB = '-';
+        if (m.status === 'Completed' || m.status === 'Live') {
+            scoreA = m.scoreA || 0;
+            scoreB = m.scoreB || 0;
+        }
+
         if (m.status === 'Completed') {
             const sA = Number(m.scoreA) || 0;
             const sB = Number(m.scoreB) || 0;
@@ -310,6 +321,8 @@ function renderMatches(matches, teams) {
                 outcomeBadgeText = 'Draw';
                 statusClass = 'status-draw';
             }
+        } else if (m.status === 'Live') {
+            outcomeBadgeText = `<i class="fa-solid fa-circle" style="font-size:10px; margin-right:5px;"></i>LIVE`;
         }
 
         // Parse scorers
@@ -330,6 +343,10 @@ function renderMatches(matches, teams) {
 
         const mStage = (m.stage || '').trim();
         const matchId = `match-${m.teamA}-${m.teamB}-${mStage.replace(/\s+/g, '-')}`;
+        
+        // Find absolute chronological match number based on original array
+        const matchNum = matches.findIndex(match => match.matchID === m.matchID) + 1;
+        
         let displayStage = mStage.toLowerCase().includes('group') ? `${mStage} Match` : `${mStage} Stage`;
         
         if (mStage.toLowerCase() === 'final' || mStage.toLowerCase().includes('third')) {
@@ -337,6 +354,8 @@ function renderMatches(matches, teams) {
         } else if (mStage === 'SemiFinal' || mStage === 'Semi') {
             const semiIndex = semis.findIndex(s => s.matchID === m.matchID);
             displayStage = `Semi Final - ${semiIndex + 1}`;
+        } else if (mStage.toLowerCase().includes('group')) {
+            displayStage = `Match No ${matchNum} - Group Stage`;
         }
 
         let matchType = m.status === 'Completed' ? 'result' : 'upcoming';
@@ -356,7 +375,7 @@ function renderMatches(matches, teams) {
                     </div>
                     
                     <!-- SCORE (Center) -->
-                    <div class="match-score" style="margin: 0 15px;">${m.scoreA} - ${m.scoreB}</div>
+                    <div class="match-score" style="margin: 0 15px;">${scoreA} - ${scoreB}</div>
                     
                     <!-- TEAM B SIDE (Far Right) -->
                     <div style="display:flex; align-items:center; gap:10px; flex:1; justify-content:flex-end;" class="${classB}">
@@ -621,7 +640,8 @@ async function loadTournamentData() {
         }
 
         // Fetch tournament data
-        const data = await fetchWithCache(WEB_APP_URL + "?action=getTournamentData", "nec_tournament_data");
+        // Cache tournament data for only 15 seconds to allow rapid Live Score refreshes
+        const data = await fetchWithCache(WEB_APP_URL + "?action=getTournamentData", "nec_tournament_data", 15 * 1000);
         window.tournamentDataGlobal = data;
         
         if (data) {
@@ -647,6 +667,29 @@ async function loadTournamentData() {
             renderTopScorers(data.topScorers, data.teams);
         } else {
             renderTopScorers([]);
+        }
+
+        // Smart Live Poller
+        if (!window.livePollerSetup) {
+            window.livePollerSetup = true;
+            setInterval(async () => {
+                const hasLive = window.tournamentDataGlobal && window.tournamentDataGlobal.matches && window.tournamentDataGlobal.matches.some(m => m.status === 'Live');
+                if (!hasLive) return; // Only poll if there is a Live match
+                
+                try {
+                    // Bypass cache by setting a tiny TTL, but fetch quietly in the background
+                    const freshData = await fetchWithCache(WEB_APP_URL + "?action=getTournamentData", "nec_tournament_data", 5000);
+                    window.tournamentDataGlobal = freshData;
+                    renderOverview(freshData);
+                    if (freshData.groups) renderGroups(freshData.groups, freshData.teams);
+                    if (freshData.matches) {
+                        renderMatches(freshData.matches, freshData.teams);
+                        renderKnockoutBracket(freshData.matches, freshData.teams);
+                    }
+                } catch(e) {
+                    console.error("Live Poller failed to fetch fresh data", e);
+                }
+            }, 15000); // 15 seconds
         }
     } catch (error) {
         console.error("Failed to load live tournament data.", error);

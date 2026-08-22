@@ -1264,3 +1264,6 @@ body {
     }
 }
 
+
+.status-live { background: linear-gradient(135deg, #e74c3c, #c0392b) !important; color: white !important; font-weight: bold; border-color: #e74c3c !important; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }

@@ -61,11 +61,16 @@ function renderOverview(data) {
                         if (fB.logoURL) tBLogo = getTeamLogoUrl(fB.logoURL);
                     }
                 }
-                const matchId = `match-${m.teamA}-${m.teamB}-${m.stage.replace(/\\s+/g, '-')}`;
+                const matchId = `match-${m.teamA}-${m.teamB}-${m.stage.replace(/\s+/g, '-')}`;
+                let scoreText = `${m.scoreA} - ${m.scoreB}`;
+                let pA = Number(m.penaltiesA) || 0;
+                let pB = Number(m.penaltiesB) || 0;
+                if (pA > 0 || pB > 0) scoreText = `${m.scoreA} <span style="font-size:10px;">(${pA})</span> - <span style="font-size:10px;">(${pB})</span> ${m.scoreB}`;
+                
                 recentMatchesHtml += `
                     <div class="overview-match-row" onclick="document.querySelector('[data-tab=\\'tab-matches\\']').click(); setTimeout(() => { const el = document.getElementById('${matchId}'); if(el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }, 100);" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" title="Click to view full match details">
                         <div class="ov-team" style="display:flex; align-items:center; gap:8px; justify-content:flex-start;"><img src="${tALogo}" style="width:20px;height:20px;object-fit:contain;" onerror="this.src='assets/logo.png'"> <span>${tAName}</span></div>
-                        <div class="ov-score" style="margin: 0 10px;">${m.scoreA} - ${m.scoreB}</div>
+                        <div class="ov-score" style="margin: 0 10px;">${scoreText}</div>
                         <div class="ov-team text-right" style="display:flex; align-items:center; gap:8px; justify-content:flex-end;"><span>${tBName}</span> <img src="${tBLogo}" style="width:20px;height:20px;object-fit:contain;" onerror="this.src='assets/logo.png'"></div>
                     </div>
                 `;
@@ -304,6 +309,8 @@ function renderMatches(matches, teams) {
         if (m.status === 'Completed') {
             const sA = Number(m.scoreA) || 0;
             const sB = Number(m.scoreB) || 0;
+            const pA = Number(m.penaltiesA) || 0;
+            const pB = Number(m.penaltiesB) || 0;
             
             if (sA > sB) {
                 outcomeBadgeText = `${tA.name} Won`;
@@ -318,8 +325,28 @@ function renderMatches(matches, teams) {
                 classB = 'winner-name';
                 classA = 'loser-opacity';
             } else {
-                outcomeBadgeText = 'Draw';
-                statusClass = 'status-draw';
+                if (pA > pB) {
+                    outcomeBadgeText = `${tA.name} Won on Pens`;
+                    statusClass = 'status-won';
+                    crownA = '<i class="fa-solid fa-crown" style="color:var(--gold); margin-right:8px; font-size:14px;"></i>';
+                    classA = 'winner-name';
+                    classB = 'loser-opacity';
+                } else if (pB > pA) {
+                    outcomeBadgeText = `${tB.name} Won on Pens`;
+                    statusClass = 'status-won';
+                    crownB = '<i class="fa-solid fa-crown" style="color:var(--gold); margin-left:8px; font-size:14px;"></i>';
+                    classB = 'winner-name';
+                    classA = 'loser-opacity';
+                } else {
+                    outcomeBadgeText = 'Draw';
+                    statusClass = 'status-draw';
+                }
+            }
+            
+            // Format score to show penalties if they occurred
+            if (pA > 0 || pB > 0) {
+                scoreA = `${sA} <span style="font-size:12px; color:#aaa;">(${pA})</span>`;
+                scoreB = `<span style="font-size:12px; color:#aaa;">(${pB})</span> ${sB}`;
             }
         } else if (m.status === 'Live') {
             outcomeBadgeText = `<i class="fa-solid fa-circle" style="font-size:10px; margin-right:5px;"></i>LIVE`;

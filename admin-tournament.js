@@ -239,7 +239,12 @@ function renderMatches() {
         let logoA = tA && tA.logoURL ? `<img src="${getDirectImageUrl(tA.logoURL)}" style="width:25px;height:25px;border-radius:50%;vertical-align:middle;margin-right:5px;">` : '';
         let logoB = tB && tB.logoURL ? `<img src="${getDirectImageUrl(tB.logoURL)}" style="width:25px;height:25px;border-radius:50%;vertical-align:middle;margin-left:5px;">` : '';
         
-        let scoreHtml = (match.status === "Completed" || match.status === "Live") ? `<strong style="font-size:18px;">${match.scoreA || 0} - ${match.scoreB || 0}</strong>` : `<em style="opacity:0.6;">vs</em>`;
+        let pA = match.penaltiesA || 0;
+        let pB = match.penaltiesB || 0;
+        let scoreFormatted = `${match.scoreA || 0} - ${match.scoreB || 0}`;
+        if (pA > 0 || pB > 0) scoreFormatted = `${match.scoreA || 0} (${pA}) - (${pB}) ${match.scoreB || 0}`;
+        
+        let scoreHtml = (match.status === "Completed" || match.status === "Live") ? `<strong style="font-size:18px;">${scoreFormatted}</strong>` : `<em style="opacity:0.6;">vs</em>`;
         let statusBadge = '';
         if (match.status === "Completed") statusBadge = `<span class="badge approved">Completed</span>`;
         else if (match.status === "Live") statusBadge = `<span class="badge" style="background:#e74c3c; color:white; animation:pulse 1.5s infinite;">Live</span>`;
@@ -537,6 +542,8 @@ function openAddMatchModal() {
     document.getElementById("matchIdInput").value = "";
     document.getElementById("scoreAInput").value = "0";
     document.getElementById("scoreBInput").value = "0";
+    document.getElementById("penAInput").value = "0";
+    document.getElementById("penBInput").value = "0";
     document.getElementById("scorersContainer").innerHTML = "";
     document.getElementById("matchStatusInput").value = "Scheduled";
     
@@ -563,6 +570,8 @@ function editMatch(matchId) {
     
     document.getElementById("scoreAInput").value = match.scoreA;
     document.getElementById("scoreBInput").value = match.scoreB;
+    document.getElementById("penAInput").value = match.penaltiesA || 0;
+    document.getElementById("penBInput").value = match.penaltiesB || 0;
     
     const container = document.getElementById("scorersContainer");
     container.innerHTML = "";
@@ -842,6 +851,8 @@ document.getElementById("matchForm").addEventListener("submit", async function(e
             teamB: teamBId,
             scoreA: document.getElementById("scoreAInput").value,
             scoreB: document.getElementById("scoreBInput").value,
+            penaltiesA: document.getElementById("penAInput").value,
+            penaltiesB: document.getElementById("penBInput").value,
             scorers: scorers
         };
         

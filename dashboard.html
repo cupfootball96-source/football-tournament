@@ -587,11 +587,18 @@ Rejected Players
                 <div id="goalsContainerA" style="width:60px;">
                     <label style="color:var(--gold); font-size:12px;">Goals</label>
                     <input type="number" id="scoreAInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
+                    <div style="margin-top:10px; font-size:10px; color:#aaa;">Pens</div>
+                    <input type="number" id="penAInput" min="0" style="width:100%; padding:5px; margin-top:2px; background:rgba(0,0,0,0.3); color:var(--gold); border:1px dashed rgba(255,255,255,0.2); text-align:center;" placeholder="0">
                 </div>
-                <div id="goalsDivider" style="font-size:20px; color:white; font-weight:bold; margin-top:15px;">-</div>
+                <div id="goalsDivider" style="font-size:20px; color:white; font-weight:bold; margin-top:15px; display:flex; flex-direction:column; align-items:center;">
+                    <div>-</div>
+                    <div style="font-size:12px; color:var(--gold); margin-top:15px;">vs</div>
+                </div>
                 <div id="goalsContainerB" style="width:60px;">
                     <label style="color:var(--gold); font-size:12px;">Goals</label>
                     <input type="number" id="scoreBInput" min="0" value="0" style="width:100%; padding:8px; margin-top:5px; background:rgba(0,0,0,0.5); color:white; border:1px solid rgba(255,255,255,0.2); text-align:center;">
+                    <div style="margin-top:10px; font-size:10px; color:#aaa;">Pens</div>
+                    <input type="number" id="penBInput" min="0" style="width:100%; padding:5px; margin-top:2px; background:rgba(0,0,0,0.3); color:var(--gold); border:1px dashed rgba(255,255,255,0.2); text-align:center;" placeholder="0">
                 </div>
                 <div style="flex:1; position: relative;">
                     <label style="color:var(--gold); font-size:12px;">Team B</label>
